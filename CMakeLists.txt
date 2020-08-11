@@ -41,19 +41,19 @@ target_link_libraries(exampleBD ${Geant4_LIBRARIES})
 # build BD. This is so that we can run the executable directly because it
 # relies on these scripts being in the current working directory.
 #
-set(EXAMPLEB4C_SCRIPTS
+set(EXAMPLEBD_SCRIPTS
   exampleBD.out
   exampleBD.in
   gui.mac
   init_vis.mac
-  plotHisto.C
-  plotNtuple.C
   run1.mac
   run2.mac
   vis.mac
+  plotHisto.cxx
+  plotNtuple.cxx
   )
 
-foreach(_script ${EXAMPLEB4C_SCRIPTS})
+foreach(_script ${EXAMPLEBD_SCRIPTS})
   configure_file(
     ${PROJECT_SOURCE_DIR}/${_script}
     ${PROJECT_BINARY_DIR}/${_script}
