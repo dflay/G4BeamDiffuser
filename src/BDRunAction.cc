@@ -65,7 +65,7 @@ BDRunAction::BDRunAction()
   // analysisManager->CreateH1("Lgap","trackL in gap", 100, 0., 50*cm);
 
   // Creating ntuple
-  analysisManager->CreateNtuple("B4","Energy, momentum, and Position");
+  analysisManager->CreateNtuple("BD","Energy, momentum, and Position");
   analysisManager->CreateNtupleDColumn("Eabs");
   // analysisManager->CreateNtupleDColumn("Egap");
   analysisManager->CreateNtupleDColumn("Labs");

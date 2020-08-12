@@ -128,23 +128,7 @@ void BDParameterisation::ComputeDimensions(G4Tubs &plate,
    plate.SetOuterRadius(fRadius_max);
    plate.SetZHalfLength(fThickness[copyNo]/2.);
    plate.SetStartPhiAngle(fStartPhi[copyNo]); 
-   plate.SetDeltaPhiAngle(fDeltaPhi[copyNo]); 
-}
-//______________________________________________________________________________
-G4VSolid *BDParameterisation::ComputeSolid(const G4int copyNo, 
-      G4VPhysicalVolume *physVol){
-   char name[200];
-   sprintf(name,"plate_%02d",copyNo); 
-   G4VSolid *solid = new G4Tubs(name,
-                                fRadius_min,fRadius_max,fThickness[copyNo]/2.,
-                                fStartPhi[copyNo],fDeltaPhi[copyNo]); 
-   return solid; 
-}
-//______________________________________________________________________________
-G4Material *BDParameterisation::ComputeMaterial(const G4int copyNo, 
-      G4VPhysicalVolume *physVol,const G4VTouchable *parentTouch){
-   // each plate is made of aluminum  
-   G4Material *theMaterial = G4Material::GetMaterial("G4_Al");  
+   plate.SetDeltaPhiAngle(fDeltaPhi[copyNo]);
 
    // determine color by copy number 
    G4VisAttributes *vis = new G4VisAttributes(); 
@@ -156,7 +140,36 @@ G4Material *BDParameterisation::ComputeMaterial(const G4int copyNo,
 
    // set properties 
    physVol->GetLogicalVolume()->SetVisAttributes(vis); 
-   physVol->GetLogicalVolume()->SetMaterial(theMaterial);  
-
-   return theMaterial;
+   // physVol->GetLogicalVolume()->SetMaterial(theMaterial);  
+ 
 }
+// //______________________________________________________________________________
+// G4VSolid *BDParameterisation::ComputeSolid(const G4int copyNo, 
+//       G4VPhysicalVolume *physVol){
+//    char name[200];
+//    sprintf(name,"plate_%02d",copyNo); 
+//    G4VSolid *solid = new G4Tubs(name,
+//                                 fRadius_min,fRadius_max,fThickness[copyNo]/2.,
+//                                 fStartPhi[copyNo],fDeltaPhi[copyNo]); 
+//    return solid; 
+// }
+// //______________________________________________________________________________
+// G4Material *BDParameterisation::ComputeMaterial(const G4int copyNo, 
+//       G4VPhysicalVolume *physVol,const G4VTouchable *parentTouch){
+//    // each plate is made of aluminum  
+//    G4Material *theMaterial = G4Material::GetMaterial("G4_Al");  
+// 
+//    // determine color by copy number 
+//    G4VisAttributes *vis = new G4VisAttributes(); 
+//    if(fColor[copyNo]==diffuser::RED     ) vis->SetColour( G4Colour::Red()     );  
+//    if(fColor[copyNo]==diffuser::YELLOW  ) vis->SetColour( G4Colour::Yellow()  );  
+//    if(fColor[copyNo]==diffuser::GREEN   ) vis->SetColour( G4Colour::Green()   );  
+//    if(fColor[copyNo]==diffuser::BLUE    ) vis->SetColour( G4Colour::Blue()    ); 
+//    if(fColor[copyNo]==diffuser::MAGENTA ) vis->SetColour( G4Colour::Magenta() ); 
+// 
+//    // set properties 
+//    physVol->GetLogicalVolume()->SetVisAttributes(vis); 
+//    physVol->GetLogicalVolume()->SetMaterial(theMaterial);  
+// 
+//    return theMaterial;
+// }

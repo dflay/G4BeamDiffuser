@@ -47,12 +47,12 @@ class BDParameterisation: public G4VPVParameterisation {
       virtual void ComputeDimensions(G4Tubs &plate,const G4int copyNo,const G4VPhysicalVolume *physVol) const;
 
       // shape of the object 
-      virtual G4VSolid *ComputeSolid(const G4int copyNo,G4VPhysicalVolume *physVol);
+      // virtual G4VSolid *ComputeSolid(const G4int copyNo,G4VPhysicalVolume *physVol);
 
       // material, sensitivity, visual attributes 
       // G4VTouchable should not be used for ordinary parameterisation
-      virtual G4Material *ComputeMaterial(const G4int copyNo,G4VPhysicalVolume *physVol,
-	                                  const G4VTouchable *parentTouch=0);
+//       virtual G4Material *ComputeMaterial(const G4int copyNo,G4VPhysicalVolume *physVol,
+// 	                                  const G4VTouchable *parentTouch=0);
  
       // initialize private member arrays based on scalar members
       void InitParameters();      
