@@ -88,14 +88,12 @@ class BDCalorHit : public G4VHit
 
 };
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
+//______________________________________________________________________________
 using BDCalorHitsCollection = G4THitsCollection<BDCalorHit>;
 
 extern G4ThreadLocal G4Allocator<BDCalorHit>* BDCalorHitAllocator;
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
+//______________________________________________________________________________
 inline void* BDCalorHit::operator new(size_t)
 {
   if (!BDCalorHitAllocator) {
@@ -105,7 +103,7 @@ inline void* BDCalorHit::operator new(size_t)
   hit = (void *) BDCalorHitAllocator->MallocSingle();
   return hit;
 }
-
+//______________________________________________________________________________
 inline void BDCalorHit::operator delete(void *hit)
 {
   if (!BDCalorHitAllocator) {
@@ -113,52 +111,50 @@ inline void BDCalorHit::operator delete(void *hit)
   }
   BDCalorHitAllocator->FreeSingle((BDCalorHit*) hit);
 }
-
+//______________________________________________________________________________
 inline void BDCalorHit::Add(G4double de, G4double dl) {
   fEdep        += de; 
   fTrackLength += dl;
 }
-
+//______________________________________________________________________________
 inline G4double BDCalorHit::GetEdep() const { 
   return fEdep; 
 }
-
+//______________________________________________________________________________
 inline G4double BDCalorHit::GetTrackLength() const { 
   return fTrackLength; 
 }
-
+//______________________________________________________________________________
 inline void BDCalorHit::SetTotalEnergy(G4double E){
    fEtot = E;
 }
-
+//______________________________________________________________________________
 inline void BDCalorHit::SetPos(G4ThreeVector v){
    fPos = v;
 }
-
+//______________________________________________________________________________
 inline void BDCalorHit::SetLabPos(G4ThreeVector v){
    fLabPos = v;
 }
-
+//______________________________________________________________________________
 inline void BDCalorHit::SetMomentum(G4ThreeVector m){
    fMom = m;
 }
-
+//______________________________________________________________________________
 inline G4double BDCalorHit::GetTotalEnergy() const{
    return fEtot;
 }
-
+//______________________________________________________________________________
 inline G4ThreeVector BDCalorHit::GetPos() const{ 
    return fPos;
 }
-
+//______________________________________________________________________________
 inline G4ThreeVector BDCalorHit::GetLabPos() const{ 
    return fLabPos;
 }
-
+//______________________________________________________________________________
 inline G4ThreeVector BDCalorHit::GetMomentum() const{ 
    return fMom;
 }
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #endif

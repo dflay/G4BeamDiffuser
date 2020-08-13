@@ -38,8 +38,7 @@
 
 G4ThreadLocal G4Allocator<BDCalorHit>* BDCalorHitAllocator = 0;
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
+//______________________________________________________________________________
 BDCalorHit::BDCalorHit()
  : G4VHit(),
    fEdep(0.),
@@ -50,13 +49,12 @@ BDCalorHit::BDCalorHit()
    fLabPos.setX(0); fLabPos.setY(0); fLabPos.setZ(0);
    fMom.setX(0);    fMom.setY(0);    fMom.setZ(0);
 }
+//______________________________________________________________________________
+BDCalorHit::~BDCalorHit() 
+{
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-BDCalorHit::~BDCalorHit() {}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
+}
+//______________________________________________________________________________
 BDCalorHit::BDCalorHit(const BDCalorHit& right)
   : G4VHit()
 {
@@ -67,9 +65,7 @@ BDCalorHit::BDCalorHit(const BDCalorHit& right)
   fLabPos      = right.fLabPos;
   fMom         = right.fMom;
 }
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
+//______________________________________________________________________________
 const BDCalorHit& BDCalorHit::operator=(const BDCalorHit& right)
 {
   fEdep        = right.fEdep;
@@ -80,16 +76,12 @@ const BDCalorHit& BDCalorHit::operator=(const BDCalorHit& right)
   fMom         = right.fMom;
   return *this;
 }
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
+//______________________________________________________________________________
 G4bool BDCalorHit::operator==(const BDCalorHit& right) const
 {
   return ( this == &right ) ? true : false;
 }
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
+//______________________________________________________________________________
 void BDCalorHit::Print()
 {
   G4cout
@@ -105,5 +97,3 @@ void BDCalorHit::Print()
      << std::setw(7) << G4BestUnit( fPos.getZ(),"Length") 
      << G4endl;
 }
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

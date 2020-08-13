@@ -1,8 +1,9 @@
 #ifndef BD_DIFFUSER_PARAMETERISATION_HH
 #define BD_DIFFUSER_PARAMETERISATION_HH
 
-// parameterization of the Hall A or C diffuser assembly 
-// repeated volumes, of varying size, separated by some distance 
+// Beam Diffuser
+// - parameterization of the Hall A or C diffuser device 
+// - repeated volumes of varying size, separated by some distance 
 
 #include "globals.hh"
 #include "G4PhysicalConstants.hh"
@@ -20,17 +21,17 @@
 
 namespace diffuser {
    enum colorIndex {
-      WHITE   = 0, 
-      GRAY    = 1, 
-      GREY    = 2, 
-      BLACK   = 3, 
-      BROWN   = 4, 
-      RED     = 5, 
-      GREEN   = 6, 
-      BLUE    = 7, 
-      CYAN    = 8, 
-      MAGENTA = 9, 
-      YELLOW  = 10  
+      kWhite   = 0, 
+      kGray    = 1, 
+      kGrey    = 2, 
+      kBlack   = 3, 
+      kBrown   = 4, 
+      kRed     = 5, 
+      kGreen   = 6, 
+      kBlue    = 7, 
+      kCyan    = 8, 
+      kMagenta = 9, 
+      kYellow  = 10  
    };
 } 
 
@@ -49,10 +50,11 @@ class BDParameterisation: public G4VPVParameterisation {
       // shape of the object 
       // virtual G4VSolid *ComputeSolid(const G4int copyNo,G4VPhysicalVolume *physVol);
 
+      // NOTE: Don't need this since the shape does not change 
       // material, sensitivity, visual attributes 
       // G4VTouchable should not be used for ordinary parameterisation
-//       virtual G4Material *ComputeMaterial(const G4int copyNo,G4VPhysicalVolume *physVol,
-// 	                                  const G4VTouchable *parentTouch=0);
+      // virtual G4Material *ComputeMaterial(const G4int copyNo,G4VPhysicalVolume *physVol,
+      //                                     const G4VTouchable *parentTouch=0);
  
       // initialize private member arrays based on scalar members
       void InitParameters();      
@@ -73,8 +75,7 @@ class BDParameterisation: public G4VPVParameterisation {
       G4double GetRadiusMax()   const { return fRadius_max; }  
 
    private:
-      char fHall;           // A or C 
-      int fNLayers;         // number of layers 
+      G4ThreeVector fR0;    // origin of device relative to mother volume 
       double fGap;          // separation of the plates
       double fWidth;        // width of a plate 
       double fRadius_min;   // inner radius of a plate 
@@ -82,8 +83,9 @@ class BDParameterisation: public G4VPVParameterisation {
       double *fThickness;   // plate thicknesses
       double *fStartPhi;    // start angles 
       double *fDeltaPhi;    // step angles
-      int    *fColor;       // plate 
-      G4ThreeVector fR0;    // origin of device
+      int    *fColor;       // plate colors  
+      int fNLayers;         // number of layers 
+      char fHall;           // A or C 
 
 };
 

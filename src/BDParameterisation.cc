@@ -2,7 +2,7 @@
 //______________________________________________________________________________
 BDParameterisation::BDParameterisation(char Hall,G4ThreeVector r0){
    fHall    = Hall; // hall label 
-   fR0      = r0;   // origin of part (relative to mother) 
+   fR0      = r0;   // origin of part (relative to mother volume) 
    InitParameters();
 }
 //______________________________________________________________________________
@@ -14,7 +14,7 @@ BDParameterisation::~BDParameterisation(){
 }
 //______________________________________________________________________________
 void BDParameterisation::InitParameters(){
-
+   // check which hall we are setting up for 
    if(fHall!='A' && fHall!='C'){
       std::cout << "[BDParameterisation::InitParameters]: Invalid Hall = " 
                 << fHall << std::endl;
@@ -76,10 +76,10 @@ void BDParameterisation::InitParameters(){
       fDeltaPhi[8]   = deltaPhi_90; fDeltaPhi[9]  = deltaPhi_60; fDeltaPhi[10] = deltaPhi_60; fDeltaPhi[11] = deltaPhi_60;
       fDeltaPhi[12]  = deltaPhi_30; fDeltaPhi[13] = deltaPhi_30; fDeltaPhi[14] = deltaPhi_30;   
       // colors 
-      fColor[0]      = diffuser::BLUE;    fColor[1]  = diffuser::BLUE;    fColor[2]  = diffuser::MAGENTA; fColor[3]  = diffuser::BLUE;
-      fColor[4]      = diffuser::BLUE;    fColor[5]  = diffuser::MAGENTA; fColor[6]  = diffuser::BLUE;    fColor[7]  = diffuser::MAGENTA;
-      fColor[8]      = diffuser::BLUE;    fColor[9]  = diffuser::MAGENTA; fColor[10] = diffuser::BLUE;    fColor[11] = diffuser::BLUE;
-      fColor[12]     = diffuser::MAGENTA; fColor[13] = diffuser::BLUE;    fColor[14] = diffuser::BLUE;
+      fColor[0]      = diffuser::kBlue;    fColor[1]  = diffuser::kBlue;    fColor[2]  = diffuser::kMagenta; fColor[3]  = diffuser::kBlue;
+      fColor[4]      = diffuser::kBlue;    fColor[5]  = diffuser::kMagenta; fColor[6]  = diffuser::kBlue;    fColor[7]  = diffuser::kMagenta;
+      fColor[8]      = diffuser::kBlue;    fColor[9]  = diffuser::kMagenta; fColor[10] = diffuser::kBlue;    fColor[11] = diffuser::kBlue;
+      fColor[12]     = diffuser::kMagenta; fColor[13] = diffuser::kBlue;    fColor[14] = diffuser::kBlue;
    }else if(fHall=='C'){
       fNLayers = 16;  
       // thicknesses  
@@ -98,10 +98,10 @@ void BDParameterisation::InitParameters(){
       fDeltaPhi[8]   = deltaPhi_90; fDeltaPhi[9]  = deltaPhi_60; fDeltaPhi[10] = deltaPhi_60; fDeltaPhi[11] = deltaPhi_60;
       fDeltaPhi[12]  = deltaPhi_30; fDeltaPhi[13] = deltaPhi_30; fDeltaPhi[14] = deltaPhi_30; fDeltaPhi[15] = deltaPhi_30;
       // colors 
-      fColor[0]      = diffuser::BLUE;   fColor[1]  = diffuser::BLUE;   fColor[2]  = diffuser::BLUE;  fColor[3]  = diffuser::BLUE;
-      fColor[4]      = diffuser::BLUE;   fColor[5]  = diffuser::BLUE;   fColor[6]  = diffuser::GREEN; fColor[7]  = diffuser::GREEN;
-      fColor[8]      = diffuser::GREEN;  fColor[9]  = diffuser::GREEN;  fColor[10] = diffuser::GREEN; fColor[11] = diffuser::GREEN;
-      fColor[12]     = diffuser::YELLOW; fColor[13] = diffuser::YELLOW; fColor[14] = diffuser::RED;   fColor[15] = diffuser::RED;
+      fColor[0]      = diffuser::kBlue;   fColor[1]  = diffuser::kBlue;   fColor[2]  = diffuser::kBlue;  fColor[3]  = diffuser::kBlue;
+      fColor[4]      = diffuser::kBlue;   fColor[5]  = diffuser::kBlue;   fColor[6]  = diffuser::kGreen; fColor[7]  = diffuser::kGreen;
+      fColor[8]      = diffuser::kGreen;  fColor[9]  = diffuser::kGreen;  fColor[10] = diffuser::kGreen; fColor[11] = diffuser::kGreen;
+      fColor[12]     = diffuser::kYellow; fColor[13] = diffuser::kYellow; fColor[14] = diffuser::kRed;   fColor[15] = diffuser::kRed;
    }
 }
 //______________________________________________________________________________
@@ -124,52 +124,19 @@ void BDParameterisation::ComputeTransformation(const G4int copyNo,
 //______________________________________________________________________________
 void BDParameterisation::ComputeDimensions(G4Tubs &plate,
       const G4int copyNo,const G4VPhysicalVolume *physVol) const{
+   // set dimensions
    plate.SetInnerRadius(fRadius_min);
    plate.SetOuterRadius(fRadius_max);
    plate.SetZHalfLength(fThickness[copyNo]/2.);
    plate.SetStartPhiAngle(fStartPhi[copyNo]); 
    plate.SetDeltaPhiAngle(fDeltaPhi[copyNo]);
-
    // determine color by copy number 
    G4VisAttributes *vis = new G4VisAttributes(); 
-   if(fColor[copyNo]==diffuser::RED     ) vis->SetColour( G4Colour::Red()     );  
-   if(fColor[copyNo]==diffuser::YELLOW  ) vis->SetColour( G4Colour::Yellow()  );  
-   if(fColor[copyNo]==diffuser::GREEN   ) vis->SetColour( G4Colour::Green()   );  
-   if(fColor[copyNo]==diffuser::BLUE    ) vis->SetColour( G4Colour::Blue()    ); 
-   if(fColor[copyNo]==diffuser::MAGENTA ) vis->SetColour( G4Colour::Magenta() ); 
-
+   if(fColor[copyNo]==diffuser::kRed    ) vis->SetColour( G4Colour::Red()     );  
+   if(fColor[copyNo]==diffuser::kYellow ) vis->SetColour( G4Colour::Yellow()  );  
+   if(fColor[copyNo]==diffuser::kGreen  ) vis->SetColour( G4Colour::Green()   );  
+   if(fColor[copyNo]==diffuser::kBlue   ) vis->SetColour( G4Colour::Blue()    ); 
+   if(fColor[copyNo]==diffuser::kMagenta) vis->SetColour( G4Colour::Magenta() ); 
    // set properties 
    physVol->GetLogicalVolume()->SetVisAttributes(vis); 
-   // physVol->GetLogicalVolume()->SetMaterial(theMaterial);  
- 
 }
-// //______________________________________________________________________________
-// G4VSolid *BDParameterisation::ComputeSolid(const G4int copyNo, 
-//       G4VPhysicalVolume *physVol){
-//    char name[200];
-//    sprintf(name,"plate_%02d",copyNo); 
-//    G4VSolid *solid = new G4Tubs(name,
-//                                 fRadius_min,fRadius_max,fThickness[copyNo]/2.,
-//                                 fStartPhi[copyNo],fDeltaPhi[copyNo]); 
-//    return solid; 
-// }
-// //______________________________________________________________________________
-// G4Material *BDParameterisation::ComputeMaterial(const G4int copyNo, 
-//       G4VPhysicalVolume *physVol,const G4VTouchable *parentTouch){
-//    // each plate is made of aluminum  
-//    G4Material *theMaterial = G4Material::GetMaterial("G4_Al");  
-// 
-//    // determine color by copy number 
-//    G4VisAttributes *vis = new G4VisAttributes(); 
-//    if(fColor[copyNo]==diffuser::RED     ) vis->SetColour( G4Colour::Red()     );  
-//    if(fColor[copyNo]==diffuser::YELLOW  ) vis->SetColour( G4Colour::Yellow()  );  
-//    if(fColor[copyNo]==diffuser::GREEN   ) vis->SetColour( G4Colour::Green()   );  
-//    if(fColor[copyNo]==diffuser::BLUE    ) vis->SetColour( G4Colour::Blue()    ); 
-//    if(fColor[copyNo]==diffuser::MAGENTA ) vis->SetColour( G4Colour::Magenta() ); 
-// 
-//    // set properties 
-//    physVol->GetLogicalVolume()->SetVisAttributes(vis); 
-//    physVol->GetLogicalVolume()->SetMaterial(theMaterial);  
-// 
-//    return theMaterial;
-// }
