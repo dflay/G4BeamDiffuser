@@ -29,5 +29,11 @@ int BDEventGen::GenerateEvent(){
    fVertex.setX(vx); 
    fVertex.setY(vy); 
    fVertex.setZ(0);   // z location is locked to zero (set in PrimaryGenerator class)  
+   // set beam energy 
+   double E0 = fBeamE;
+   double dE = 0.02*E0; // 2% spread
+   fBeamE = CLHEP::RandGauss::shoot(E0,dE); 
+   sprintf(msg,"[BDEventGen]: Beam energy = %.3lf GeV",fBeamE/CLHEP::GeV); 
+   std::cout << msg << std::endl;
    return 0; 
 }

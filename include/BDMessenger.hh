@@ -36,6 +36,8 @@ class BDMessenger : public G4UImessenger {
       // beam pointing 
       G4UIcmdWithADoubleAndUnit *fBeamPointXcmd;  
       G4UIcmdWithADoubleAndUnit *fBeamPointYcmd; 
+      // beam energy 
+      G4UIcmdWithADoubleAndUnit *fBeamEcmd; 
 
 }; 
 

@@ -59,7 +59,8 @@ public:
 
 private:
   G4ParticleGun*  fParticleGun; // G4 particle gun
-  BDEventGen*     fEventGen;    // custom event generator 
+  BDEventGen*     fEventGen;    // custom event generator
+  G4double fParticleMass;       // beam particle mass  
   
 
 };

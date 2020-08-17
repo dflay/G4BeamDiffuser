@@ -52,12 +52,12 @@ BDPrimaryGeneratorAction::BDPrimaryGeneratorAction()
   fParticleGun = new G4ParticleGun(nofParticles);
 
   // default particle kinematic
-  //
-  auto particleDefinition 
-    = G4ParticleTable::GetParticleTable()->FindParticle("e-");
-  fParticleGun->SetParticleDefinition(particleDefinition);
+  auto particleDef = G4ParticleTable::GetParticleTable()->FindParticle("e-");
+  fParticleGun->SetParticleDefinition(particleDef);
   fParticleGun->SetParticleMomentumDirection(G4ThreeVector(0.,0.,1.));
   fParticleGun->SetParticleEnergy(50.*MeV);
+
+  fParticleMass = particleDef->GetPDGMass(); 
 
   fEventGen = new BDEventGen(); 
 
@@ -109,8 +109,19 @@ void BDPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   fEventGen->GenerateEvent();  // generate new vertex based on beam raster and pointing 
   G4ThreeVector vert = fEventGen->GetVertex(); 
   vert.setZ(-worldZHalfLength);  // z is fixed 
+  std::cout << "[Primary Generator]: Beam position x = " 
+            << vert.getX()/mm << " mm, y = " 
+            << vert.getY()/mm << " mm, z = "  
+            << vert.getZ()/mm << " mm" << std::endl;
   fParticleGun->SetParticlePosition(vert);
- 
+
+  // set KINETIC energy
+  // T = E - m 
+  G4double E    = fEventGen->GetBeamEnergy();
+  G4double T    = E - fParticleMass;
+  std::cout << "[PrimaryGenerator]: Beam E = " << E/GeV << " GeV, T = " << T/GeV << " GeV" << std::endl; 
+  fParticleGun->SetParticleEnergy(T);   
+  
   // Set gun position
   // fParticleGun->SetParticlePosition(G4ThreeVector(0., 0., -worldZHalfLength));
 

@@ -7,9 +7,19 @@
 /run/initialize
 
 # Default kinemtics: 
-/gun/particle e- 
-/gun/energy 11 GeV
+# /gun/particle e- 
+# /gun/energy 5 GeV
+
+# beam energy 
+/b4/beamE 5 GeV
+
+# beam raster 
+/b4/rasterx 4.0 mm
+/b4/rastery 4.0 mm
+
+# beam direction 
+/b4/beampointx 0.0 mm
+/b4/beampointy 0.0 mm
 
 /run/printProgress 100
 /run/beamOn 1000
-

@@ -30,6 +30,10 @@ BDMessenger::BDMessenger(){
    fBeamPointYcmd = new G4UIcmdWithADoubleAndUnit("/b4/beampointy",this); 
    fBeamPointYcmd->SetGuidance("Set beam pointing along the vertical (y) direction"); 
    fBeamPointYcmd->SetParameterName("beampointy",false);  // must provide input 
+   // beam energy 
+   fBeamEcmd = new G4UIcmdWithADoubleAndUnit("/b4/beamE",this); 
+   fBeamEcmd->SetGuidance("Set beam energy");
+   fBeamEcmd->SetParameterName("beamE",false); 
 }
 //______________________________________________________________________________
 BDMessenger::~BDMessenger(){
@@ -38,10 +42,12 @@ BDMessenger::~BDMessenger(){
    delete fRasterYcmd;
    delete fBeamPointXcmd;
    delete fBeamPointYcmd;
+   delete fBeamEcmd; 
 }
 //______________________________________________________________________________
 void BDMessenger::SetNewValue(G4UIcommand *cmd,G4String newValue){
    // default to zero 
+   G4double be=0; 
    G4double rx=0,ry=0;
    G4double px=0,py=0;
    // process commands
@@ -61,4 +67,8 @@ void BDMessenger::SetNewValue(G4UIcommand *cmd,G4String newValue){
       py = fBeamPointYcmd->GetNewDoubleValue(newValue);
       fEventGen->SetBeamPointingY(py); 
    } 
+   if(cmd==fBeamEcmd){
+      be = fBeamEcmd->GetNewDoubleValue(newValue); 
+      fEventGen->SetBeamEnergy(be); 
+   }
 }

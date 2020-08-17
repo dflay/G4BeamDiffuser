@@ -6,6 +6,7 @@
 #include "CLHEP/Random/RandGauss.h"
 #include "G4ThreeVector.hh"
 #include "G4LorentzVector.hh"
+#include "G4SystemOfUnits.hh"
 
 class BDEventGen { 
 
