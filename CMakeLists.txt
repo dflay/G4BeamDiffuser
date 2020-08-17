@@ -48,6 +48,7 @@ set(EXAMPLEBD_SCRIPTS
   init_vis.mac
   run1.mac
   run2.mac
+  run3.mac
   vis.mac
   plotHisto.cxx
   plotNtuple.cxx
