@@ -46,7 +46,8 @@
 BDEventAction::BDEventAction()
  : G4UserEventAction(),
    fAbsHCID(-1),
-   fGapHCID(-1)
+   fGapHCID(-1),
+   fDiffHCID(-1)
 {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -112,23 +113,23 @@ void BDEventAction::EndOfEventAction(const G4Event* event)
   // turn off printing gap info, since we removed it from the code 
   
   // Get hits collections IDs (only once)
-  if ( fAbsHCID == -1 ) {
-    fAbsHCID 
-      = G4SDManager::GetSDMpointer()->GetCollectionID("AbsorberHitsCollection");
-    // fGapHCID 
-    //   = G4SDManager::GetSDMpointer()->GetCollectionID("GapHitsCollection");
+  if ( fDiffHCID == -1 ) {
+    // fAbsHCID = G4SDManager::GetSDMpointer()->GetCollectionID("AbsorberHitsCollection");
+    // fGapHCID = G4SDManager::GetSDMpointer()->GetCollectionID("GapHitsCollection");
+    fDiffHCID = G4SDManager::GetSDMpointer()->GetCollectionID("DiffuserHitsCollection");
   }
 
   // Get hits collections
-  auto absoHC = GetHitsCollection(fAbsHCID, event);
+  // auto absoHC = GetHitsCollection(fAbsHCID, event);
   // auto gapHC  = GetHitsCollection(fGapHCID, event);
+  auto diffHC = GetHitsCollection(fDiffHCID, event);
 
   // Get hit with total values
-  auto absoHit = (*absoHC)[absoHC->entries()-1];
+  // auto absoHit = (*absoHC)[absoHC->entries()-1];
   // auto gapHit  = (*gapHC)[gapHC->entries()-1];
+  auto diffHit = (*diffHC)[diffHC->entries()-1];
  
   // Print per event (modulo n)
-  //
   auto eventID     = event->GetEventID();
   auto printModulo = G4RunManager::GetRunManager()->GetPrintProgress();
   if ( ( printModulo > 0 ) && ( eventID % printModulo == 0 ) ) {
@@ -137,8 +138,7 @@ void BDEventAction::EndOfEventAction(const G4Event* event)
     // PrintEventStatistics(
     //   absoHit->GetEdep(), absoHit->GetTrackLength(),
     //   gapHit->GetEdep(), gapHit->GetTrackLength());
-
-    PrintEventStatistics( absoHit->GetEdep(),absoHit->GetTrackLength(),0,0); 
+    PrintEventStatistics(diffHit->GetEdep(),diffHit->GetTrackLength(),0,0); 
   }  
   
   // Fill histograms, ntuple
@@ -147,21 +147,22 @@ void BDEventAction::EndOfEventAction(const G4Event* event)
   auto analysisManager = G4AnalysisManager::Instance();
 
   // fill ntuple in specific units 
-  G4double EDEP = absoHit->GetEdep()/CLHEP::GeV; 
-  G4double ETOT = absoHit->GetTotalEnergy()/CLHEP::GeV; 
-  G4double TLEN = absoHit->GetTrackLength()/CLHEP::mm; 
+  G4double EDEP = diffHit->GetEdep()/CLHEP::GeV; 
+  G4double ETOT = diffHit->GetTotalEnergy()/CLHEP::GeV; 
+  G4double TLEN = diffHit->GetTrackLength()/CLHEP::mm;
+  G4int layer   = diffHit->GetLayer();  
 
-  G4ThreeVector pos = absoHit->GetPos();
+  G4ThreeVector pos = diffHit->GetPos();
   G4double x = pos.getX()/CLHEP::mm; 
   G4double y = pos.getY()/CLHEP::mm; 
   G4double z = pos.getZ()/CLHEP::mm;
 
-  G4ThreeVector labPos = absoHit->GetLabPos();
+  G4ThreeVector labPos = diffHit->GetLabPos();
   G4double lx = labPos.getX()/CLHEP::mm; 
   G4double ly = labPos.getY()/CLHEP::mm; 
   G4double lz = labPos.getZ()/CLHEP::mm;
 
-  G4ThreeVector mom = absoHit->GetMomentum();
+  G4ThreeVector mom = diffHit->GetMomentum();
   G4double px = mom.getX()/(CLHEP::GeV/CLHEP::c_light); 
   G4double py = mom.getY()/(CLHEP::GeV/CLHEP::c_light); 
   G4double pz = mom.getZ()/(CLHEP::GeV/CLHEP::c_light);
@@ -173,20 +174,21 @@ void BDEventAction::EndOfEventAction(const G4Event* event)
   // analysisManager->FillH1(3, gapHit->GetTrackLength());
   
   // fill ntuple
-  analysisManager->FillNtupleDColumn(0 ,EDEP);
+  analysisManager->FillNtupleDColumn(0 ,EDEP );
   // analysisManager->FillNtupleDColumn(1, gapHit->GetEdep());
-  analysisManager->FillNtupleDColumn(1 ,TLEN);
-  analysisManager->FillNtupleDColumn(2 ,ETOT);
+  analysisManager->FillNtupleDColumn(1 ,TLEN );
+  analysisManager->FillNtupleDColumn(2 ,ETOT );
   // analysisManager->FillNtupleDColumn(3, gapHit->GetTrackLength());
-  analysisManager->FillNtupleDColumn(3 ,x   ); 
-  analysisManager->FillNtupleDColumn(4 ,y   ); 
-  analysisManager->FillNtupleDColumn(5 ,z   );
-  analysisManager->FillNtupleDColumn(6 ,lx  ); 
-  analysisManager->FillNtupleDColumn(7 ,ly  ); 
-  analysisManager->FillNtupleDColumn(8 ,lz  ); 
-  analysisManager->FillNtupleDColumn(9 ,px  ); 
-  analysisManager->FillNtupleDColumn(10,py  ); 
-  analysisManager->FillNtupleDColumn(11,pz  ); 
+  analysisManager->FillNtupleDColumn(3 ,x    ); 
+  analysisManager->FillNtupleDColumn(4 ,y    ); 
+  analysisManager->FillNtupleDColumn(5 ,z    );
+  analysisManager->FillNtupleDColumn(6 ,lx   ); 
+  analysisManager->FillNtupleDColumn(7 ,ly   ); 
+  analysisManager->FillNtupleDColumn(8 ,lz   ); 
+  analysisManager->FillNtupleDColumn(9 ,px   ); 
+  analysisManager->FillNtupleDColumn(10,py   ); 
+  analysisManager->FillNtupleDColumn(11,pz   ); 
+  analysisManager->FillNtupleDColumn(11,layer); 
   analysisManager->AddNtupleRow();  
 }  
 

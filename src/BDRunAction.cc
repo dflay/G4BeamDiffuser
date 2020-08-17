@@ -59,9 +59,9 @@ BDRunAction::BDRunAction()
   // Book histograms, ntuple
   
   // Creating histograms
-  analysisManager->CreateH1("Eabs","Edep in absorber", 100, 0.,1.);     // in GeV
+  analysisManager->CreateH1("Eabs","Edep in diffuser", 100, 0.,1.);     // in GeV
   // analysisManager->CreateH1("Egap","Edep in gap", 100, 0., 100*MeV);
-  analysisManager->CreateH1("Labs","trackL in absorber", 100, 0.,1E+3); // in mm 
+  analysisManager->CreateH1("Labs","trackL in diffuser", 100, 0.,1E+3); // in mm 
   // analysisManager->CreateH1("Lgap","trackL in gap", 100, 0., 50*cm);
 
   // Creating ntuple
@@ -82,6 +82,8 @@ BDRunAction::BDRunAction()
   analysisManager->CreateNtupleDColumn("Px"); 
   analysisManager->CreateNtupleDColumn("Py"); 
   analysisManager->CreateNtupleDColumn("Pz");
+  // layer number 
+  analysisManager->CreateNtupleDColumn("Layer"); 
 
   analysisManager->FinishNtuple();
 }
@@ -147,7 +149,6 @@ void BDRunAction::EndOfRunAction(const G4Run* /*run*/)
   }
 
   // save histograms & ntuple
-  //
   analysisManager->Write();
   analysisManager->CloseFile();
 }

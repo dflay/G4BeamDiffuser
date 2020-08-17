@@ -107,28 +107,28 @@ G4VPhysicalVolume* BDDetectorConstruction::DefineVolumes()
   // - Change gap to vacuum and turn off sensitive detector functionality  
 
   // Geometry parameters
-  fNofLayers = 3; // 10; 
-  G4double absoThickness = 10.*mm;
-  G4double gapThickness =  5.*mm;
-  G4double calorSizeXY  = 10.*cm;
+  // fNofLayers = 3; // 10; 
+  // G4double absoThickness = 10.*mm;
+  // G4double gapThickness =  5.*mm;
+  // G4double calorSizeXY  = 10.*cm;
+  // auto layerThickness = absoThickness + gapThickness;
+  // auto calorThickness = fNofLayers * layerThickness;
 
-  auto layerThickness = absoThickness + gapThickness;
-  auto calorThickness = fNofLayers * layerThickness;
   auto worldSizeXY    = 5*m; // 1.2*calorSizeXY;
   auto worldSizeZ     = 5*m; // 1.2*calorThickness; 
-  
+   
   // Get materials
   auto defaultMaterial  = G4Material::GetMaterial("Galactic");
-  auto absorberMaterial = G4Material::GetMaterial("G4_Al");
-  auto gapMaterial      = G4Material::GetMaterial("Galactic");
-  
-  if ( ! defaultMaterial || ! absorberMaterial || ! gapMaterial ) {
-    G4ExceptionDescription msg;
-    msg << "Cannot retrieve materials already defined."; 
-    G4Exception("B4DetectorConstruction::DefineVolumes()",
-      "MyCode0001", FatalException, msg);
-  }  
+  // auto absorberMaterial = G4Material::GetMaterial("G4_Al");
+  // auto gapMaterial      = G4Material::GetMaterial("Galactic");
    
+  // if ( ! defaultMaterial || ! absorberMaterial || ! gapMaterial ) {
+  //   G4ExceptionDescription msg;
+  //   msg << "Cannot retrieve materials already defined."; 
+  //   G4Exception("B4DetectorConstruction::DefineVolumes()",
+  //     "MyCode0001", FatalException, msg);
+  // }  
+    
   // World
   auto worldS 
     = new G4Box("World",           // its name
@@ -151,152 +151,162 @@ G4VPhysicalVolume* BDDetectorConstruction::DefineVolumes()
                  0,                // copy number
                  fCheckOverlaps);  // checking overlaps 
 
-  // Calorimeter
-  auto calorimeterS
-    = new G4Box("Calorimeter",     // its name
-                 calorSizeXY/2, calorSizeXY/2, calorThickness/2); // its size
-                         
-  auto calorLV
-    = new G4LogicalVolume(
-                 calorimeterS,     // its solid
-                 defaultMaterial,  // its material
-                 "Calorimeter");   // its name
-                                   
-  new G4PVPlacement(
-                 0,                // no rotation
-                 G4ThreeVector(),  // at (0,0,0)
-                 calorLV,          // its logical volume                         
-                 "Calorimeter",    // its name
-                 worldLV,          // its mother  volume
-                 false,            // no boolean operation
-                 0,                // copy number
-                 fCheckOverlaps);  // checking overlaps
-   
-  // Layer
-  auto layerS 
-    = new G4Box("Layer",           // its name
-                 calorSizeXY/2, calorSizeXY/2, layerThickness/2); //its size
-                         
-  auto layerLV
-    = new G4LogicalVolume(
-                 layerS,           // its solid
-                 defaultMaterial,  // its material
-                 "Layer");         // its name
+  // // Calorimeter
+  // auto calorimeterS
+  //   = new G4Box("Calorimeter",     // its name
+  //                calorSizeXY/2, calorSizeXY/2, calorThickness/2); // its size
+  //                        
+  // auto calorLV
+  //   = new G4LogicalVolume(
+  //                calorimeterS,     // its solid
+  //                defaultMaterial,  // its material
+  //                "Calorimeter");   // its name
+  //                                  
+  // new G4PVPlacement(
+  //                0,                // no rotation
+  //                G4ThreeVector(),  // at (0,0,0)
+  //                calorLV,          // its logical volume                         
+  //                "Calorimeter",    // its name
+  //                worldLV,          // its mother  volume
+  //                false,            // no boolean operation
+  //                0,                // copy number
+  //                fCheckOverlaps);  // checking overlaps
+  //  
+  // // Layer
+  // auto layerS 
+  //   = new G4Box("Layer",           // its name
+  //                calorSizeXY/2, calorSizeXY/2, layerThickness/2); //its size
+  //                        
+  // auto layerLV
+  //   = new G4LogicalVolume(
+  //                layerS,           // its solid
+  //                defaultMaterial,  // its material
+  //                "Layer");         // its name
 
-  new G4PVReplica(
-                 "Layer",          // its name
-                 layerLV,          // its logical volume
-                 calorLV,          // its mother
-                 kZAxis,           // axis of replication
-                 fNofLayers,       // number of replica
-                 layerThickness);  // witdth of replica
+  // new G4PVReplica(
+  //                "Layer",          // its name
+  //                layerLV,          // its logical volume
+  //                calorLV,          // its mother
+  //                kZAxis,           // axis of replication
+  //                fNofLayers,       // number of replica
+  //                layerThickness);  // witdth of replica
+  // 
+  // // Absorber
+  // auto absorberS 
+  //   = new G4Box("Abso",            // its name
+  //                calorSizeXY/2, calorSizeXY/2, absoThickness/2); // its size
+  //                        
+  // auto absorberLV
+  //   = new G4LogicalVolume(
+  //                absorberS,        // its solid
+  //                absorberMaterial, // its material
+  //                "AbsoLV");        // its name
+
+  // // visualization 
+  // G4VisAttributes *visAbso = new G4VisAttributes(); 
+  // visAbso->SetColor( G4Color::Blue() );
+  // visAbso->SetForceWireframe(false); 
+  // absorberLV->SetVisAttributes(visAbso); 
+  //                                  
+  //  new G4PVPlacement(
+  //                0,                // no rotation
+  //                G4ThreeVector(0., 0.,-gapThickness/2.), // its position
+  //                absorberLV,       // its logical volume                         
+  //                "Abso",           // its name
+  //                layerLV,          // its mother  volume
+  //                false,            // no boolean operation
+  //                0,                // copy number
+  //                fCheckOverlaps);  // checking overlaps 
+
+  //  // Gap
+  //  auto gapS 
+  //    = new G4Box("Gap",             // its name
+  //                 calorSizeXY/2, calorSizeXY/2, gapThickness/2); // its size
+  //                         
+  //  auto gapLV
+  //    = new G4LogicalVolume(
+  //                 gapS,             // its solid
+  //                 gapMaterial,      // its material
+  //                 "GapLV");         // its name
+  //                                   
+  //  new G4PVPlacement(
+  //                 0,                // no rotation
+  //                 G4ThreeVector(0., 0., absoThickness/2), // its position
+  //                 gapLV,            // its logical volume                         
+  //                 "Gap",            // its name
+  //                 layerLV,          // its mother  volume
+  //                 false,            // no boolean operation
+  //                 0,                // copy number
+  //                 fCheckOverlaps);  // checking overlaps 
   
-  // Absorber
-  auto absorberS 
-    = new G4Box("Abso",            // its name
-                 calorSizeXY/2, calorSizeXY/2, absoThickness/2); // its size
-                         
-  auto absorberLV
-    = new G4LogicalVolume(
-                 absorberS,        // its solid
-                 absorberMaterial, // its material
-                 "AbsoLV");        // its name
-
-  // visualization 
-  G4VisAttributes *visAbso = new G4VisAttributes(); 
-  visAbso->SetColor( G4Color::Blue() );
-  visAbso->SetForceWireframe(false); 
-  absorberLV->SetVisAttributes(visAbso); 
-                                   
-   new G4PVPlacement(
-                 0,                // no rotation
-                 G4ThreeVector(0., 0.,-gapThickness/2.), // its position
-                 absorberLV,       // its logical volume                         
-                 "Abso",           // its name
-                 layerLV,          // its mother  volume
-                 false,            // no boolean operation
-                 0,                // copy number
-                 fCheckOverlaps);  // checking overlaps 
-
-   // Gap
-   auto gapS 
-     = new G4Box("Gap",             // its name
-                  calorSizeXY/2, calorSizeXY/2, gapThickness/2); // its size
-                          
-   auto gapLV
-     = new G4LogicalVolume(
-                  gapS,             // its solid
-                  gapMaterial,      // its material
-                  "GapLV");         // its name
-                                    
-   new G4PVPlacement(
-                  0,                // no rotation
-                  G4ThreeVector(0., 0., absoThickness/2), // its position
-                  gapLV,            // its logical volume                         
-                  "Gap",            // its name
-                  layerLV,          // its mother  volume
-                  false,            // no boolean operation
-                  0,                // copy number
-                  fCheckOverlaps);  // checking overlaps 
-  
- 
-  // A case for diffuser
-  // - made of vacuum 
-  // - allows placement of the volume in same mother as the calorimeter
-  //   (can't have two replicas or parameterised volumes in same mother...)  
-  G4double diffCase_xy = 0.5*m; 
-  G4double diffCase_z  = 0.5*m; 
-
-  auto diffCaseS 
-    = new G4Box("diffCase",           // its name
-                 diffCase_xy/2.,diffCase_xy/2.,diffCase_z/2.); // its size
-                         
-  auto diffCaseLV
-    = new G4LogicalVolume(
-                 diffCaseS,        // its solid
-                 defaultMaterial,  // its material
-                 "diffCase");      // its name
-                                   
-  new G4PVPlacement(
-                 0,                        // no rotation
-                 G4ThreeVector(0,0,2.*m),  // location in mother volume 
-                 diffCaseLV,               // its logical volume                         
-                 "diffCase",               // its name
-                 worldLV,                  // its mother  volume
-                 false,                    // no boolean operation
-                 0,                        // copy number
-                 fCheckOverlaps);          // checking overlaps 
-
-  BuildDiffuser(diffCaseLV,'A'); 
+  BuildDiffuser(worldLV,'A'); 
   // BuildDiffuser_HallA(worldLV);
   // BuildDiffuser_HallC(worldLV);
  
   // print parameters
-  G4cout
-    << G4endl 
-    << "------------------------------------------------------------" << G4endl
-    << "---> The calorimeter is " << fNofLayers << " layers of: [ "
-    << absoThickness/mm << "mm of " << absorberMaterial->GetName() 
-    << " + "
-    << gapThickness/mm << "mm of " << gapMaterial->GetName() << " ] " << G4endl
-    << "------------------------------------------------------------" << G4endl;
-  
+  // G4cout
+  //   << G4endl 
+  //   << "------------------------------------------------------------" << G4endl
+  //   << "---> The calorimeter is " << fNofLayers << " layers of: [ "
+  //   << absoThickness/mm << "mm of " << absorberMaterial->GetName() 
+  //   << " + "
+  //   << gapThickness/mm << "mm of " << gapMaterial->GetName() << " ] " << G4endl
+  //   << "------------------------------------------------------------" << G4endl;
+  // 
+
   // Visualization attributes
   worldLV->SetVisAttributes(G4VisAttributes::GetInvisible());
-  diffCaseLV->SetVisAttributes(G4VisAttributes::GetInvisible());
 
-  auto simpleBoxVisAtt= new G4VisAttributes(G4Colour(1.0,1.0,1.0));
-  simpleBoxVisAtt->SetVisibility(true);
-  calorLV->SetVisAttributes(simpleBoxVisAtt);
+  // auto simpleBoxVisAtt= new G4VisAttributes(G4Colour(1.0,1.0,1.0));
+  // simpleBoxVisAtt->SetVisibility(true);
+  // calorLV->SetVisAttributes(simpleBoxVisAtt);
 
   // Always return the physical World
   return worldPV;
 }
 //______________________________________________________________________________
 void BDDetectorConstruction::BuildDiffuser(G4LogicalVolume *logicMother,char Hall){
+ 
+   // A case for diffuser
+   // - made of vacuum 
+   // - allows placement of the volume in same mother as the calorimeter
+   //   (can't have two replicas or parameterised volumes in same mother...)  
+ 
+   auto defaultMaterial  = G4Material::GetMaterial("Galactic");
+
+   G4double diffCase_xy = 0.5*m; 
+   G4double diffCase_z  = 0.5*m; 
+
+   auto diffCaseS 
+      = new G4Box("diffCase",           // its name
+	    diffCase_xy/2.,diffCase_xy/2.,diffCase_z/2.); // its size
+
+   auto diffCaseLV
+      = new G4LogicalVolume(
+	    diffCaseS,        // its solid
+	    defaultMaterial,  // its material
+	    "diffCase");      // its name
+  
+   // where to place the diffuser  
+   G4double inch = 25.4*mm; 
+   G4double xd = 0.;
+   G4double yd = 6.*inch; 
+   G4double zd = 2.*m; 
+
+   new G4PVPlacement(
+	 0,                        // no rotation
+	 G4ThreeVector(xd,yd,zd),  // location in mother volume 
+	 diffCaseLV,               // its logical volume                         
+	 "diffCase",               // its name
+	 logicMother,                  // its mother  volume
+	 false,                    // no boolean operation
+	 0,                        // copy number
+	 fCheckOverlaps);          // checking overlaps 
+   
+   diffCaseLV->SetVisAttributes(G4VisAttributes::GetInvisible());
+
    // parameterised build of the diffuser
    // build first plate (same for Hall A or C)  
-   G4double inch     = 25.4*mm;
    G4double r_min    = 2.*inch; 
    G4double r_max    = 5.*inch;
    G4double thk      = 0.125*inch;
@@ -320,7 +330,7 @@ void BDDetectorConstruction::BuildDiffuser(G4LogicalVolume *logicMother,char Hal
 
    G4VPVParameterisation *plateParam = new BDParameterisation(Hall,P0); 
    // G4VPhysicalVolume *physDiffuser   = new G4PVParameterised("Diffuser",plateLV,logicMother,kZAxis,fNDiffLayers,plateParam); 
-   new G4PVParameterised("Diffuser",plateLV,logicMother,kZAxis,fNDiffLayers,plateParam); 
+   new G4PVParameterised("Diffuser",plateLV,diffCaseLV,kZAxis,fNDiffLayers,plateParam); 
 
 }
 // //______________________________________________________________________________
@@ -591,9 +601,9 @@ void BDDetectorConstruction::ConstructSDandField()
   // G4SDManager::GetSDMpointer()->SetVerboseLevel(1);
 
   // Sensitive detectors
-  auto absoSD     = new BDCalorimeterSD("AbsorberSD", "AbsorberHitsCollection", fNofLayers);
-  G4SDManager::GetSDMpointer()->AddNewDetector(absoSD);
-  SetSensitiveDetector("AbsoLV",absoSD);
+  // auto absoSD     = new BDCalorimeterSD("AbsorberSD", "AbsorberHitsCollection", fNofLayers);
+  // G4SDManager::GetSDMpointer()->AddNewDetector(absoSD);
+  // SetSensitiveDetector("AbsoLV",absoSD);
 
   auto diffuserSD = new BDCalorimeterSD("DiffuserSD","DiffuserHitsCollection",fNDiffLayers); 
   G4SDManager::GetSDMpointer()->AddNewDetector(diffuserSD);

@@ -91,7 +91,7 @@ G4bool BDCalorimeterSD::ProcessHits(G4Step* step,
 
   auto touchable = (step->GetPreStepPoint()->GetTouchable());
     
-  // Get calorimeter cell id 
+  // Get cell/layer ID 
   auto layerNumber = touchable->GetReplicaNumber(1);
   
   // Get hit accounting data for this cell
@@ -102,6 +102,9 @@ G4bool BDCalorimeterSD::ProcessHits(G4Step* step,
     G4Exception("BDCalorimeterSD::ProcessHits()",
       "MyCode0004", FatalException, msg);
   }         
+  
+  // set the layer ID 
+  hit->SetLayer(layerNumber); 
 
   // Get hit for total accounting
   auto hitTotal = (*fHitsCollection)[fHitsCollection->entries()-1];

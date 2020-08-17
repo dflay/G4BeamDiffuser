@@ -44,27 +44,27 @@
 
 class BDEventAction : public G4UserEventAction
 {
-public:
-  BDEventAction();
-  virtual ~BDEventAction();
+   public:
+      BDEventAction();
+      virtual ~BDEventAction();
 
-  virtual void  BeginOfEventAction(const G4Event* event);
-  virtual void    EndOfEventAction(const G4Event* event);
-    
-private:
-  // methods
-  BDCalorHitsCollection* GetHitsCollection(G4int hcID,
-                                            const G4Event* event) const;
-  void PrintEventStatistics(G4double absoEdep, G4double absoTrackLength,
-                            G4double gapEdep, G4double gapTrackLength) const;
-  
-  // data members                   
-  G4int  fAbsHCID;
-  G4int  fGapHCID;
+      virtual void  BeginOfEventAction(const G4Event* event);
+      virtual void    EndOfEventAction(const G4Event* event);
+
+   private:
+      // methods
+      BDCalorHitsCollection* GetHitsCollection(G4int hcID,const G4Event* event) const; 
+
+      void PrintEventStatistics(G4double absoEdep, G4double absoTrackLength,
+	    G4double gapEdep, G4double gapTrackLength) const;
+
+      // data members                   
+      G4int fAbsHCID;
+      G4int fGapHCID;
+      G4int fDiffHCID; 
 };
-                     
+
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #endif
 
-    

@@ -63,6 +63,7 @@ class BDCalorHit : public G4VHit
     // methods to handle data
     void Add(G4double de, G4double dl);
     void SetTotalEnergy(G4double E); 
+    void SetLayer(G4int i); 
 
     void SetPos(G4ThreeVector v);
     void SetLabPos(G4ThreeVector v);
@@ -72,6 +73,7 @@ class BDCalorHit : public G4VHit
     G4double GetEdep() const;
     G4double GetTrackLength() const;
     G4double GetTotalEnergy() const; 
+    G4int    GetLayer() const; 
 
     G4ThreeVector GetPos() const; 
     G4ThreeVector GetLabPos() const; 
@@ -81,6 +83,7 @@ class BDCalorHit : public G4VHit
     G4double fEdep;        ///< Energy deposit in the sensitive volume
     G4double fTrackLength; ///< Track length in the sensitive volume
     G4double fEtot;        ///< Total energy (at pre-step) 
+    G4int fLayer;          ///< Layer number
   
     G4ThreeVector fPos;    ///< Local hit coordinate 
     G4ThreeVector fLabPos; ///< Global hit coordinate 
@@ -141,8 +144,16 @@ inline void BDCalorHit::SetMomentum(G4ThreeVector m){
    fMom = m;
 }
 //______________________________________________________________________________
+inline void BDCalorHit::SetLayer(G4int i){
+   fLayer = i; 
+}
+//______________________________________________________________________________
 inline G4double BDCalorHit::GetTotalEnergy() const{
    return fEtot;
+}
+//______________________________________________________________________________
+inline G4int BDCalorHit::GetLayer() const{
+   return fLayer;
 }
 //______________________________________________________________________________
 inline G4ThreeVector BDCalorHit::GetPos() const{ 
