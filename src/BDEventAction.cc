@@ -42,22 +42,21 @@
 #include <iomanip>
 #include <iostream> 
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
+//______________________________________________________________________________
 BDEventAction::BDEventAction()
  : G4UserEventAction(),
    fAbsHCID(-1),
    fGapHCID(-1),
    fDiffHCID(-1)
-{}
+{
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
+}
+//______________________________________________________________________________
 BDEventAction::~BDEventAction()
-{}
+{
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
+}
+//______________________________________________________________________________
 BDCalorHitsCollection* 
 BDEventAction::GetHitsCollection(G4int hcID,
                                   const G4Event* event) const
@@ -75,9 +74,7 @@ BDEventAction::GetHitsCollection(G4int hcID,
 
   return hitsCollection;
 }    
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
+//______________________________________________________________________________
 void BDEventAction::PrintEventStatistics(
                               G4double Edep, G4double TrackLength,
                               G4int layer) const
@@ -101,26 +98,25 @@ void BDEventAction::PrintEventStatistics(
      // << std::setw(7) << G4BestUnit(gapTrackLength, "Length")
      // << G4endl;
 }
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
+//______________________________________________________________________________
 void BDEventAction::BeginOfEventAction(const G4Event* /*event*/)
-{}
+{
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
+}
+//______________________________________________________________________________
 void BDEventAction::EndOfEventAction(const G4Event* event)
 {
+
+  // FIXME: Make sure ALL HITS are written!
+  //        Look at G4SBSIO and GESBSGEMoutput for guidance  
 
   // DFlay modification 
   // turn off printing gap info, since we removed it from the code 
   
   // Get hits collections IDs (only once)
-  if ( fDiffHCID == -1 ) {
-    // fAbsHCID = G4SDManager::GetSDMpointer()->GetCollectionID("AbsorberHitsCollection");
-    // fGapHCID = G4SDManager::GetSDMpointer()->GetCollectionID("GapHitsCollection");
-    fDiffHCID = G4SDManager::GetSDMpointer()->GetCollectionID("DiffuserHitsCollection");
-  }
+  // if(fAbsHCID  == -1) fAbsHCID  = G4SDManager::GetSDMpointer()->GetCollectionID("AbsorberHitsCollection");
+  // if(fGapHCID  == -1) fGapHCID  = G4SDManager::GetSDMpointer()->GetCollectionID("GapHitsCollection");
+  if(fDiffHCID == -1) fDiffHCID = G4SDManager::GetSDMpointer()->GetCollectionID("DiffuserHitsCollection");
 
   // Get hits collections
   // auto absoHC = GetHitsCollection(fAbsHCID, event);
@@ -132,19 +128,17 @@ void BDEventAction::EndOfEventAction(const G4Event* event)
   // Get hit with total values
   // auto absoHit = (*absoHC)[absoHC->entries()-1];
   // auto gapHit  = (*gapHC)[gapHC->entries()-1];
-  auto diffHit = (*diffHC)[diffHC->entries()-1];
+  auto diffHit = (*diffHC)[diffHC->entries()-1];   // THIS IS THE LAST HIT! 
  
   // Print per event (modulo n)
   auto eventID     = event->GetEventID();
   auto printModulo = G4RunManager::GetRunManager()->GetPrintProgress();
   if ( ( printModulo > 0 ) && ( eventID % printModulo == 0 ) ) {
     G4cout << "---> End of event: " << eventID << G4endl;     
-
     // PrintEventStatistics(
     //   absoHit->GetEdep(), absoHit->GetTrackLength(),
     //   gapHit->GetEdep(), gapHit->GetTrackLength());
     // PrintEventStatistics(diffHit->GetEdep(),diffHit->GetTrackLength(),diffHit->GetLayer());
-    // for(int i=0;i<NHits;i++) PrintEventStatistics(diffHC[i].GetEdep(),diffHC[i].GetTrackLength(),diffHC[i].GetLayer()); 
     diffHC->PrintAllHits(); 
  
   }  
@@ -200,4 +194,3 @@ void BDEventAction::EndOfEventAction(const G4Event* event)
   analysisManager->AddNtupleRow();  
 }  
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
