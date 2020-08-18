@@ -11,7 +11,8 @@
 # /gun/energy 5 GeV
 
 # beam energy 
-/b4/beamE 5 GeV
+/b4/beamE    5 GeV
+/b4/beamEsig 20 MeV
 
 # beam raster 
 /b4/rasterx 4.0 mm
@@ -21,5 +22,5 @@
 /b4/beampointx 0.0 mm
 /b4/beampointy 0.0 mm
 
-/run/printProgress 100
+/run/printProgress 10
 /run/beamOn 1000

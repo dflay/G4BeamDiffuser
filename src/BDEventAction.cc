@@ -40,6 +40,7 @@
 
 #include "Randomize.hh"
 #include <iomanip>
+#include <iostream> 
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -78,20 +79,22 @@ BDEventAction::GetHitsCollection(G4int hcID,
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void BDEventAction::PrintEventStatistics(
-                              G4double absoEdep, G4double absoTrackLength,
-                              G4double gapEdep, G4double gapTrackLength) const
+                              G4double Edep, G4double TrackLength,
+                              G4int layer) const
 {
 
   // DFlay modification 
   // turn off printing gap info, since we removed it from the code 
 
   // print event statistics
-  G4cout
-     << "   Absorber: total energy: " 
-     << std::setw(7) << G4BestUnit(absoEdep, "Energy")
-     << "       total track length: " 
-     << std::setw(7) << G4BestUnit(absoTrackLength, "Length")
-     << G4endl; 
+  char msg[200]; 
+  sprintf(msg,"[BDEventAction]: Beam Diffuser: E (tot) = %.3lf MeV, Track Len (tot) = %.3lf mm, Layer = %d",
+          Edep/CLHEP::MeV,TrackLength/CLHEP::mm,layer); 
+  G4cout << msg << G4endl;
+  // G4cout << "   Diffuser: total energy: " << std::setw(7) << G4BestUnit(Edep, "Energy")
+  //        << "       total track length: " << std::setw(7) << G4BestUnit(TrackLength, "Length")
+  //        << "             layer number: " << std::setw(7) << layer 
+  //    << G4endl; 
      // << "        Gap: total energy: " 
      // << std::setw(7) << G4BestUnit(gapEdep, "Energy")
      // << "       total track length: " 
@@ -124,6 +127,8 @@ void BDEventAction::EndOfEventAction(const G4Event* event)
   // auto gapHC  = GetHitsCollection(fGapHCID, event);
   auto diffHC = GetHitsCollection(fDiffHCID, event);
 
+  int NHits = diffHC->entries();
+
   // Get hit with total values
   // auto absoHit = (*absoHC)[absoHC->entries()-1];
   // auto gapHit  = (*gapHC)[gapHC->entries()-1];
@@ -138,7 +143,10 @@ void BDEventAction::EndOfEventAction(const G4Event* event)
     // PrintEventStatistics(
     //   absoHit->GetEdep(), absoHit->GetTrackLength(),
     //   gapHit->GetEdep(), gapHit->GetTrackLength());
-    PrintEventStatistics(diffHit->GetEdep(),diffHit->GetTrackLength(),0,0); 
+    // PrintEventStatistics(diffHit->GetEdep(),diffHit->GetTrackLength(),diffHit->GetLayer());
+    // for(int i=0;i<NHits;i++) PrintEventStatistics(diffHC[i].GetEdep(),diffHC[i].GetTrackLength(),diffHC[i].GetLayer()); 
+    diffHC->PrintAllHits(); 
+ 
   }  
   
   // Fill histograms, ntuple
@@ -188,7 +196,7 @@ void BDEventAction::EndOfEventAction(const G4Event* event)
   analysisManager->FillNtupleDColumn(9 ,px   ); 
   analysisManager->FillNtupleDColumn(10,py   ); 
   analysisManager->FillNtupleDColumn(11,pz   ); 
-  analysisManager->FillNtupleDColumn(11,layer); 
+  analysisManager->FillNtupleDColumn(12,layer); 
   analysisManager->AddNtupleRow();  
 }  
 

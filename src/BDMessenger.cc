@@ -34,6 +34,10 @@ BDMessenger::BDMessenger(){
    fBeamEcmd = new G4UIcmdWithADoubleAndUnit("/b4/beamE",this); 
    fBeamEcmd->SetGuidance("Set beam energy");
    fBeamEcmd->SetParameterName("beamE",false); 
+   // beam energy stdev  
+   fBeamESIGcmd = new G4UIcmdWithADoubleAndUnit("/b4/beamEsig",this); 
+   fBeamESIGcmd->SetGuidance("Set beam energy standard deviation");
+   fBeamESIGcmd->SetParameterName("beamEsig",false); 
 }
 //______________________________________________________________________________
 BDMessenger::~BDMessenger(){
@@ -43,11 +47,12 @@ BDMessenger::~BDMessenger(){
    delete fBeamPointXcmd;
    delete fBeamPointYcmd;
    delete fBeamEcmd; 
+   delete fBeamESIGcmd; 
 }
 //______________________________________________________________________________
 void BDMessenger::SetNewValue(G4UIcommand *cmd,G4String newValue){
    // default to zero 
-   G4double be=0; 
+   G4double be=0,bes=0; 
    G4double rx=0,ry=0;
    G4double px=0,py=0;
    // process commands
@@ -70,5 +75,9 @@ void BDMessenger::SetNewValue(G4UIcommand *cmd,G4String newValue){
    if(cmd==fBeamEcmd){
       be = fBeamEcmd->GetNewDoubleValue(newValue); 
       fEventGen->SetBeamEnergy(be); 
+   }
+   if(cmd==fBeamESIGcmd){
+      bes = fBeamESIGcmd->GetNewDoubleValue(newValue); 
+      fEventGen->SetBeamEnergySigma(bes); 
    }
 }

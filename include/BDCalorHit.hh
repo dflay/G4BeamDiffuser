@@ -91,9 +91,7 @@ class BDCalorHit : public G4VHit
 
 };
 
-//______________________________________________________________________________
 using BDCalorHitsCollection = G4THitsCollection<BDCalorHit>;
-
 extern G4ThreadLocal G4Allocator<BDCalorHit>* BDCalorHitAllocator;
 
 //______________________________________________________________________________
@@ -152,10 +150,6 @@ inline G4double BDCalorHit::GetTotalEnergy() const{
    return fEtot;
 }
 //______________________________________________________________________________
-inline G4int BDCalorHit::GetLayer() const{
-   return fLayer;
-}
-//______________________________________________________________________________
 inline G4ThreeVector BDCalorHit::GetPos() const{ 
    return fPos;
 }
@@ -166,6 +160,10 @@ inline G4ThreeVector BDCalorHit::GetLabPos() const{
 //______________________________________________________________________________
 inline G4ThreeVector BDCalorHit::GetMomentum() const{ 
    return fMom;
+}
+//______________________________________________________________________________
+inline G4int BDCalorHit::GetLayer() const{
+   return fLayer;
 }
 
 #endif

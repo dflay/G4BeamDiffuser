@@ -55,8 +55,7 @@ class BDEventAction : public G4UserEventAction
       // methods
       BDCalorHitsCollection* GetHitsCollection(G4int hcID,const G4Event* event) const; 
 
-      void PrintEventStatistics(G4double absoEdep, G4double absoTrackLength,
-	    G4double gapEdep, G4double gapTrackLength) const;
+      void PrintEventStatistics(G4double Edep,G4double TrackLength,G4int layer) const;
 
       // data members                   
       G4int fAbsHCID;

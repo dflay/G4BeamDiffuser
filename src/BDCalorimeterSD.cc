@@ -34,8 +34,7 @@
 #include "G4SDManager.hh"
 #include "G4ios.hh"
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
+//______________________________________________________________________________
 BDCalorimeterSD::BDCalorimeterSD(
                             const G4String& name, 
                             const G4String& hitsCollectionName,
@@ -46,38 +45,34 @@ BDCalorimeterSD::BDCalorimeterSD(
 {
   collectionName.insert(hitsCollectionName);
 }
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
+//______________________________________________________________________________
 BDCalorimeterSD::~BDCalorimeterSD() 
 { 
+
 }
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
+//______________________________________________________________________________
 void BDCalorimeterSD::Initialize(G4HCofThisEvent* hce)
 {
   // Create hits collection
-  fHitsCollection 
-    = new BDCalorHitsCollection(SensitiveDetectorName, collectionName[0]); 
+  fHitsCollection = new BDCalorHitsCollection(SensitiveDetectorName, collectionName[0]); 
 
   // Add this collection in hce
-  auto hcID 
-    = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
+  auto hcID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
   hce->AddHitsCollection( hcID, fHitsCollection ); 
 
+  // FIXME: This doesn't seem right (for us)
+  // mimic g4sbs implementation for the GEMs -- will resize this vector dynamically  
   // Create hits
   // fNofCells for cells + one more for total sums 
-  for (G4int i=0; i<fNofCells+1; i++ ) {
-    fHitsCollection->insert(new BDCalorHit());
-  }
+  // for (G4int i=0; i<fNofCells+1; i++ ) {
+  //   fHitsCollection->insert(new BDCalorHit());
+  // }
+
 }
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-G4bool BDCalorimeterSD::ProcessHits(G4Step* step, 
-                                     G4TouchableHistory*)
-{  
+//______________________________________________________________________________
+G4bool BDCalorimeterSD::ProcessHits(G4Step* step,G4TouchableHistory*)
+{ 
+ 
   // energy deposit
   auto edep = step->GetTotalEnergyDeposit();
   
@@ -87,58 +82,68 @@ G4bool BDCalorimeterSD::ProcessHits(G4Step* step,
     stepLength = step->GetStepLength();
   }
 
-  if ( edep==0. && stepLength == 0. ) return false;      
+  if ( edep==0. && stepLength == 0. ) return false;     
+ 
+  // create a hit 
+  BDCalorHit *hit = new BDCalorHit(); 
 
   auto touchable = (step->GetPreStepPoint()->GetTouchable());
+
+  // Used to retrieve coordinate transformations relevant to spectrometer coordinate system:
+  G4TouchableHistory* hist = (G4TouchableHistory*)(step->GetPreStepPoint()->GetTouchable());
     
   // Get cell/layer ID 
-  auto layerNumber = touchable->GetReplicaNumber(1);
-  
+  // auto layerNo = touchable->GetReplicaNumber(1);      // doesn't work 
+  auto layerNo = touchable->GetVolume()->GetCopyNo(); // works! 
+
+  // G4int copyNo            = touchable->GetVolume()->GetCopyNo();
+  // G4int motherCopyNo      = touchable->GetVolume(1)->GetCopyNo();
+  // G4int grandMotherCopyNo = touchable->GetVolume(2)->GetCopyNo();
+  // char msg[200];
+  // sprintf(msg,"[BDCalorimeterSD]: layerNo = %d, copyNo = %d, mother copyNo = %d, gma copyNo = %d",
+  //         layerNo,copyNo,motherCopyNo,grandMotherCopyNo); 
+  // std::cout << msg << std::endl;
+ 
+  // FIXME: Note that the layerNo != hit number!  
   // Get hit accounting data for this cell
-  auto hit = (*fHitsCollection)[layerNumber];
+  // auto hit = (*fHitsCollection)[layerNo];  // WARNING: This is a HitCollection! i.e., vector of hits 
   if ( ! hit ) {
     G4ExceptionDescription msg;
-    msg << "Cannot access hit " << layerNumber; 
+    // msg << "Cannot access hit " << layerNo; 
+    msg << "Cannot access hit! "; 
     G4Exception("BDCalorimeterSD::ProcessHits()",
       "MyCode0004", FatalException, msg);
   }         
-  
-  // set the layer ID 
-  hit->SetLayer(layerNumber); 
 
   // Get hit for total accounting
-  auto hitTotal = (*fHitsCollection)[fHitsCollection->entries()-1];
+  // auto hitTotal = (*fHitsCollection)[fHitsCollection->entries()-1];
 
   // grab info from step 
   G4ThreeVector pos = step->GetPreStepPoint()->GetPosition();     // in the lab coordinates
   G4ThreeVector mom = step->GetPreStepPoint()->GetMomentum();
   G4double E        = step->GetPreStepPoint()->GetTotalEnergy();
- 
-  // global coordinates  
-  hit->SetLabPos(pos); 
-  hitTotal->SetLabPos(pos);  
 
   // transform position into local coordinates of detector 
-  G4TouchableHistory* hist = (G4TouchableHistory*)(step->GetPreStepPoint()->GetTouchable());
   G4AffineTransform aTrans = hist->GetHistory()->GetTopTransform();
-
   pos = aTrans.TransformPoint(pos);
-  hit->SetPos(pos);
-  hitTotal->SetPos(pos);  
-  
-  // Add E dep, step length  
-  hit->Add(edep, stepLength);
-  hitTotal->Add(edep, stepLength);
 
-  // total energy 
-  hit->SetTotalEnergy(E); 
-  hitTotal->SetTotalEnergy(E); 
+  // set hit details
+  hit->SetLayer(layerNo);      // layer number  
+  hit->SetPos(pos);            // position in detector coordinates 
+  // hitTotal->SetPos(pos);     
+  hit->SetLabPos(pos);         // position in lab coordinates 
+  // hitTotal->SetLabPos(pos);  
+  hit->Add(edep, stepLength);  // accumulate edep and length
+  // hitTotal->Add(edep, stepLength);
+  hit->SetTotalEnergy(E);      // set total energy 
+  // hitTotal->SetTotalEnergy(E);
+
+  // now append to vector 
+  fHitsCollection->insert(hit);  
       
   return true;
 }
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
+//______________________________________________________________________________
 void BDCalorimeterSD::EndOfEvent(G4HCofThisEvent*)
 {
   if ( verboseLevel>1 ) { 
@@ -151,4 +156,3 @@ void BDCalorimeterSD::EndOfEvent(G4HCofThisEvent*)
   }
 }
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

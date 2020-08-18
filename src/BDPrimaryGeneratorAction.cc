@@ -42,8 +42,7 @@
 
 #include "BDEventGen.hh"
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
+//______________________________________________________________________________
 BDPrimaryGeneratorAction::BDPrimaryGeneratorAction()
  : G4VUserPrimaryGeneratorAction(),
    fParticleGun(nullptr)
@@ -62,17 +61,13 @@ BDPrimaryGeneratorAction::BDPrimaryGeneratorAction()
   fEventGen = new BDEventGen(); 
 
 }
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
+//______________________________________________________________________________
 BDPrimaryGeneratorAction::~BDPrimaryGeneratorAction()
 {
   delete fParticleGun;
   delete fEventGen;
 }
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
+//______________________________________________________________________________
 void BDPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
   // This function is called at the begining of event
@@ -102,31 +97,41 @@ void BDPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       "MyCode0002", JustWarning, msg);
   } 
  
+  // use our event generator 
+  // - utilizes input for beam rastering and (mis)pointing 
+  // - beam energy set from input file
+  // - for some reason, sometimes the input macro values are NOT used.  
+  //   to fix this, we have an Initialize() function that gives reasonable values 
+  //   (that is, identical to the input macro).  this is not good practice, but it's fine for this test.  
+  int rc = 1;
+  int cntr=0; 
+  do {
+     rc = fEventGen->GenerateEvent();
+  }while(rc!=0);  
+ 
   // implement beam parameters
   // - raster
   // - mispointing
-  // - beam energy (convert to kinetic energy first!) 
-  fEventGen->GenerateEvent();  // generate new vertex based on beam raster and pointing 
   G4ThreeVector vert = fEventGen->GetVertex(); 
   vert.setZ(-worldZHalfLength);  // z is fixed 
-  std::cout << "[Primary Generator]: Beam position x = " 
-            << vert.getX()/mm << " mm, y = " 
-            << vert.getY()/mm << " mm, z = "  
-            << vert.getZ()/mm << " mm" << std::endl;
+  // std::cout << "[PrimaryGenerator]: Beam position x = " 
+  //           << vert.getX()/mm << " mm, y = " 
+  //           << vert.getY()/mm << " mm, z = "  
+  //           << vert.getZ()/mm << " mm" << std::endl;
   fParticleGun->SetParticlePosition(vert);
 
-  // set KINETIC energy
+  // beam energy (convert to kinetic energy first!) 
   // T = E - m 
-  G4double E    = fEventGen->GetBeamEnergy();
-  G4double T    = E - fParticleMass;
-  std::cout << "[PrimaryGenerator]: Beam E = " << E/GeV << " GeV, T = " << T/GeV << " GeV" << std::endl; 
-  fParticleGun->SetParticleEnergy(T);   
+  G4double E = fEventGen->GetBeamEnergy();
+  G4double T = E - fParticleMass;
+  // std::cout << "[PrimaryGenerator]: Beam E = " << E/GeV << " GeV, T = " << T/GeV << " GeV" << std::endl; 
+  fParticleGun->SetParticleEnergy(T);  
+
+  // std::cout << "-------------------------------------------------------" << std::endl; 
   
   // Set gun position
   // fParticleGun->SetParticlePosition(G4ThreeVector(0., 0., -worldZHalfLength));
 
   fParticleGun->GeneratePrimaryVertex(anEvent);
 }
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 

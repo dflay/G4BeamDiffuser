@@ -43,7 +43,8 @@ BDCalorHit::BDCalorHit()
  : G4VHit(),
    fEdep(0.),
    fTrackLength(0.),
-   fEtot(0.)
+   fEtot(0.),
+   fLayer(-1)
 {
    fPos.setX(0);    fPos.setY(0);    fPos.setZ(0);
    fLabPos.setX(0); fLabPos.setY(0); fLabPos.setZ(0);
@@ -61,6 +62,7 @@ BDCalorHit::BDCalorHit(const BDCalorHit& right)
   fEdep        = right.fEdep;
   fTrackLength = right.fTrackLength;
   fEtot        = right.fEtot;
+  fLayer       = right.fLayer;
   fPos         = right.fPos;
   fLabPos      = right.fLabPos;
   fMom         = right.fMom;
@@ -71,6 +73,7 @@ const BDCalorHit& BDCalorHit::operator=(const BDCalorHit& right)
   fEdep        = right.fEdep;
   fTrackLength = right.fTrackLength;
   fEtot        = right.fEtot;
+  fLayer       = right.fLayer;
   fPos         = right.fPos;
   fLabPos      = right.fLabPos;
   fMom         = right.fMom;
@@ -84,16 +87,28 @@ G4bool BDCalorHit::operator==(const BDCalorHit& right) const
 //______________________________________________________________________________
 void BDCalorHit::Print()
 {
+
+  // good for csv files 
+  // char msg[200];
+  // sprintf(msg,"Edep,trackLen,trackX,trackY,trackZ,layerID"); 
+  // G4cout << msg << G4endl; 
+  // sprintf(msg,"%.3lf,%.3lf,%.3lf,%.3lf,%.3lf,%d",
+  //         fEdep/CLHEP::keV,fTrackLength/CLHEP::mm,fPos.getX()/CLHEP::mm,fPos.getY()/CLHEP::mm,fPos.getZ()/CLHEP::mm,fLayer);
+  // G4cout << msg << G4endl;
+
   G4cout
      << "Edep: " 
      << std::setw(7) << G4BestUnit(fEdep,"Energy")
      << " track length: " 
-     << std::setw(7) << G4BestUnit( fTrackLength,"Length")
+     << std::setw(7) << G4BestUnit(fTrackLength,"Length")
      << " track x: " 
-     << std::setw(7) << G4BestUnit( fPos.getX(),"Length") 
+     << std::setw(7) << G4BestUnit(fPos.getX(),"Length") 
      << " track y: " 
-     << std::setw(7) << G4BestUnit( fPos.getY(),"Length") 
+     << std::setw(7) << G4BestUnit(fPos.getY(),"Length") 
      << " track z: " 
-     << std::setw(7) << G4BestUnit( fPos.getZ(),"Length") 
+     << std::setw(7) << G4BestUnit(fPos.getZ(),"Length") 
+     << " layer no: " 
+     << std::setw(7) << fLayer  
      << G4endl;
+
 }
