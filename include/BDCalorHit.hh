@@ -72,8 +72,12 @@ class BDCalorHit : public G4VHit
     // get methods
     G4double GetEdep() const;
     G4double GetTrackLength() const;
-    G4double GetTotalEnergy() const; 
+    G4double GetTotalEnergy() const;
+    G4double GetMom() const;  
+    G4double GetHitTime() const { return 0; } // FIXME
     G4int    GetLayer() const; 
+    G4int    GetPID()     const { return 0; } // FIXME
+    G4int    GetTrackID() const { return 0; } // FIXME
 
     G4ThreeVector GetPos() const; 
     G4ThreeVector GetLabPos() const; 
@@ -160,6 +164,14 @@ inline G4ThreeVector BDCalorHit::GetLabPos() const{
 //______________________________________________________________________________
 inline G4ThreeVector BDCalorHit::GetMomentum() const{ 
    return fMom;
+}
+//______________________________________________________________________________
+inline G4double BDCalorHit::GetMom() const {
+   double x      = fMom.x();
+   double y      = fMom.y();
+   double z      = fMom.z();
+   double sum_sq = x*x + y*y + z*z; 
+   return sqrt(sum_sq); 
 }
 //______________________________________________________________________________
 inline G4int BDCalorHit::GetLayer() const{

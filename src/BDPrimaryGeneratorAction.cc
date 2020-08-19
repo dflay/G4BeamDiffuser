@@ -104,7 +104,6 @@ void BDPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   //   to fix this, we have an Initialize() function that gives reasonable values 
   //   (that is, identical to the input macro).  this is not good practice, but it's fine for this test.  
   int rc = 1;
-  int cntr=0; 
   do {
      rc = fEventGen->GenerateEvent();
   }while(rc!=0);  

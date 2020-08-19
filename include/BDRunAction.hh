@@ -33,6 +33,8 @@
 #include "G4UserRunAction.hh"
 #include "globals.hh"
 
+#include "BDIO.hh"
+
 class G4Run;
 
 /// Run action class
@@ -61,6 +63,12 @@ class BDRunAction : public G4UserRunAction
 
     virtual void BeginOfRunAction(const G4Run*);
     virtual void   EndOfRunAction(const G4Run*);
+
+    void SetIO(BDIO *io) { fIO = io; } 
+
+  private: 
+    BDIO *fIO;
+
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

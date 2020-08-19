@@ -37,6 +37,7 @@
 
 class BDEventGen; 
 class BDMessenger; 
+class BDIO; 
 
 class BDActionInitialization : public G4VUserActionInitialization
 {
@@ -51,7 +52,8 @@ class BDActionInitialization : public G4VUserActionInitialization
 
   private:
 //    G4VUserPrimaryGeneratorAction *fGenAction; 
-    BDMessenger *fMessenger;  
+    BDMessenger *fMessenger; 
+    BDIO *fIO; 
 
 };
 

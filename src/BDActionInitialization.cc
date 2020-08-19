@@ -33,36 +33,52 @@
 #include "BDEventAction.hh"
 #include "BDEventGen.hh"
 #include "BDMessenger.hh"
+#include "BDIO.hh"
 
 //______________________________________________________________________________
 BDActionInitialization::BDActionInitialization()
  : G4VUserActionInitialization()
 {
-   fMessenger = new BDMessenger(); 
+   fMessenger = new BDMessenger();
+   fIO        = new BDIO(); 
 }
 //______________________________________________________________________________
 BDActionInitialization::~BDActionInitialization()
 {
    delete fMessenger;
+   delete fIO;
 }
 //______________________________________________________________________________
 void BDActionInitialization::BuildForMaster() const
 {
-   SetUserAction(new BDRunAction);
+   // SetUserAction(new BDRunAction);
+   G4UserRunAction* run_action = new BDRunAction();
+   ( (BDRunAction *) run_action )->SetIO(fIO);
+   SetUserAction(run_action);
 }
 //______________________________________________________________________________
 void BDActionInitialization::Build() const
 {
+   // much simpler way, when there's no custom classes that need access 
+   // to specific data 
+   // SetUserAction(new BDPrimaryGeneratorAction);
+   // SetUserAction(new BDRunAction);
+   // SetUserAction(new BDEventAction);
+
    // For the messenger, need to get a pointer to the event generator that is 
    // a data member of PrimaryGeneratorAction 
    G4VUserPrimaryGeneratorAction *gen_action = new BDPrimaryGeneratorAction(); 
    fMessenger->SetEvGen( ((BDPrimaryGeneratorAction *)gen_action)->GetEvGen() ); 
    SetUserAction(gen_action);
-   // SetUserAction(new BDPrimaryGeneratorAction);
-   SetUserAction(new BDRunAction);
-   SetUserAction(new BDEventAction);
+
+   // RunAction: we need to set its IO pointer to the one located here 
+   G4UserRunAction* run_action = new BDRunAction();
+   ( (BDRunAction *) run_action )->SetIO(fIO);
+   SetUserAction(run_action);
+
+   // EventAction: we need to set its IO pointer to the one located here 
+   G4UserEventAction *event_action = new BDEventAction(); 
+   ( (BDEventAction *)event_action )->SetIO(fIO); 
+   SetUserAction(event_action);
 }  
-//______________________________________________________________________________
-// BDEventGen *BDActionInitialization::GetEvGen(){
-//     return ( (BDPrimaryGeneratorAction *)fGenAction )->GetEvGen(); 
-// }
+

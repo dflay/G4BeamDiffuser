@@ -35,11 +35,11 @@
 #include "G4UnitsTable.hh"
 #include "G4SystemOfUnits.hh"
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
+//______________________________________________________________________________
 BDRunAction::BDRunAction()
  : G4UserRunAction()
-{ 
+{
+ 
   // set printing event number per each event
   G4RunManager::GetRunManager()->SetPrintProgress(1);     
 
@@ -87,32 +87,28 @@ BDRunAction::BDRunAction()
 
   analysisManager->FinishNtuple();
 }
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
+//______________________________________________________________________________
 BDRunAction::~BDRunAction()
 {
   delete G4AnalysisManager::Instance();  
 }
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
+//______________________________________________________________________________
 void BDRunAction::BeginOfRunAction(const G4Run* /*run*/)
 { 
-  //inform the runManager to save random number seed
-  //G4RunManager::GetRunManager()->SetRandomNumberStore(true);
-  
-  // Get analysis manager
-  auto analysisManager = G4AnalysisManager::Instance();
+   //inform the runManager to save random number seed
+   //G4RunManager::GetRunManager()->SetRandomNumberStore(true);
 
-  // Open an output file
-  //
-  G4String fileName = "B4";
-  analysisManager->OpenFile(fileName);
+   // custom output
+   fIO->InitializeTree();
+
+   // Get analysis manager
+   auto analysisManager = G4AnalysisManager::Instance();
+
+   // Open an output file
+   G4String fileName = "B4";
+   analysisManager->OpenFile(fileName);
 }
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
+//______________________________________________________________________________
 void BDRunAction::EndOfRunAction(const G4Run* /*run*/)
 {
   // print histogram statistics
@@ -151,6 +147,8 @@ void BDRunAction::EndOfRunAction(const G4Run* /*run*/)
   // save histograms & ntuple
   analysisManager->Write();
   analysisManager->CloseFile();
-}
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+  // custom output 
+  fIO->WriteTree(); 
+
+}
