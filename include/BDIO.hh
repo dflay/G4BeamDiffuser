@@ -20,17 +20,6 @@
 
 #include "BDoutput.hh"
 
-#define MAXHITDATA 2000
-
-// typedef struct hit {
-//   Double_t p[MAXHITDATA], edep[MAXHITDATA];
-//   Double_t x[MAXHITDATA], y[MAXHITDATA], z[MAXHITDATA], t[MAXHITDATA];
-//   Double_t xg[MAXHITDATA], yg[MAXHITDATA], zg[MAXHITDATA];
-//   Int_t gid[MAXHITDATA],trkid[MAXHITDATA],trid[MAXHITDATA];
-//   Int_t mid[MAXHITDATA], pid[MAXHITDATA];
-//   Int_t ndata;
-// } hit_t; 
-
 class BDIO { 
 
    public:
@@ -38,11 +27,13 @@ class BDIO {
       ~BDIO();
 
       void SetFileName(const char *fn)   { strcpy(fFilename,fn); }
-      
-      void SetBDData(G4String SDname,BDoutput data);
+ 
+      void Initialize();
       void FillTree();
-      void WriteTree();
-      void InitializeTree();
+      void Write();
+      void CloseFile();
+     
+      void SetBDData(G4String SDname,BDoutput data);
       void BranchBD(G4String SDname="BD");  
 
    private:

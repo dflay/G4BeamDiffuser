@@ -68,8 +68,6 @@ class BDDetectorConstruction : public G4VUserDetectorConstruction
     G4VPhysicalVolume* DefineVolumes();
 
     void BuildDiffuser(G4LogicalVolume *logicMother,char Hall); 
-    // void BuildDiffuser_HallA(G4LogicalVolume *logicMother); 
-    // void BuildDiffuser_HallC(G4LogicalVolume *logicMother); 
   
     // data members
     static G4ThreadLocal G4GlobalMagFieldMessenger*  fMagFieldMessenger; // magnetic field messenger

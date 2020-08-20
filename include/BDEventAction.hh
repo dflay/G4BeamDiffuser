@@ -32,7 +32,7 @@
 
 #include "G4UserEventAction.hh"
 
-#include "BDCalorHit.hh"
+#include "BDHit.hh"
 #include "BDoutput.hh"
 #include "BDIO.hh"
 
@@ -58,24 +58,22 @@ class BDEventAction : public G4UserEventAction
       virtual void  BeginOfEventAction(const G4Event* event);
       virtual void    EndOfEventAction(const G4Event* event);
 
-      void SetIO( BDIO *io ){ fIO = io; }
+      void SetIO(BDIO *io){ fIO = io; }
 
    private:
       // methods
-      BDCalorHitsCollection* GetHitsCollection(G4int hcID,const G4Event* event) const; 
+      BDHitsCollection* GetHitsCollection(G4int hcID,const G4Event* event) const; 
 
       void PrintEventStatistics(G4double Edep,G4double TrackLength,G4int layer) const;
-      void FillBDData(const G4Event *evt,BDCalorHitsCollection *hc,BDoutput &out); 
+      void FillBDData(const G4Event *evt,BDHitsCollection *hc,BDoutput &out); 
 
       // data members                  
       BDIO *fIO;  
  
-      G4int fAbsHCID;
-      G4int fGapHCID;
+//      G4int fAbsHCID;
+//      G4int fGapHCID;
       G4int fDiffHCID; 
 };
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #endif
 

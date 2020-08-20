@@ -55,6 +55,7 @@ void BDActionInitialization::BuildForMaster() const
    G4UserRunAction* run_action = new BDRunAction();
    ( (BDRunAction *) run_action )->SetIO(fIO);
    SetUserAction(run_action);
+
 }
 //______________________________________________________________________________
 void BDActionInitialization::Build() const

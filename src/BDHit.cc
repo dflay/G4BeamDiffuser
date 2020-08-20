@@ -24,10 +24,10 @@
 // ********************************************************************
 //
 //
-/// \file BDCalorHit.cc
-/// \brief Implementation of the BDCalorHit class
+/// \file BDHit.cc
+/// \brief Implementation of the BDHit class
 
-#include "BDCalorHit.hh"
+#include "BDHit.hh"
 #include "G4UnitsTable.hh"
 #include "G4VVisManager.hh"
 #include "G4Circle.hh"
@@ -36,10 +36,10 @@
 
 #include <iomanip>
 
-G4ThreadLocal G4Allocator<BDCalorHit>* BDCalorHitAllocator = 0;
+G4ThreadLocal G4Allocator<BDHit>* BDHitAllocator = 0;
 
 //______________________________________________________________________________
-BDCalorHit::BDCalorHit()
+BDHit::BDHit()
  : G4VHit(),
    fEdep(0.),
    fTrackLength(0.),
@@ -51,12 +51,12 @@ BDCalorHit::BDCalorHit()
    fMom.setX(0);    fMom.setY(0);    fMom.setZ(0);
 }
 //______________________________________________________________________________
-BDCalorHit::~BDCalorHit() 
+BDHit::~BDHit() 
 {
 
 }
 //______________________________________________________________________________
-BDCalorHit::BDCalorHit(const BDCalorHit& right)
+BDHit::BDHit(const BDHit& right)
   : G4VHit()
 {
   fEdep        = right.fEdep;
@@ -68,7 +68,7 @@ BDCalorHit::BDCalorHit(const BDCalorHit& right)
   fMom         = right.fMom;
 }
 //______________________________________________________________________________
-const BDCalorHit& BDCalorHit::operator=(const BDCalorHit& right)
+const BDHit& BDHit::operator=(const BDHit& right)
 {
   fEdep        = right.fEdep;
   fTrackLength = right.fTrackLength;
@@ -80,12 +80,12 @@ const BDCalorHit& BDCalorHit::operator=(const BDCalorHit& right)
   return *this;
 }
 //______________________________________________________________________________
-G4bool BDCalorHit::operator==(const BDCalorHit& right) const
+G4bool BDHit::operator==(const BDHit& right) const
 {
   return ( this == &right ) ? true : false;
 }
 //______________________________________________________________________________
-void BDCalorHit::Print()
+void BDHit::Print()
 {
 
   // good for csv files 

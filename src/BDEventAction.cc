@@ -28,8 +28,8 @@
 /// \brief Implementation of the BDEventAction class
 
 #include "BDEventAction.hh"
-#include "BDCalorimeterSD.hh"
-#include "BDCalorHit.hh"
+#include "BeamDiffuserSD.hh"
+#include "BDHit.hh"
 #include "BDAnalysis.hh"
 
 #include "G4RunManager.hh"
@@ -49,8 +49,8 @@
 //______________________________________________________________________________
 BDEventAction::BDEventAction()
  : G4UserEventAction(),
-   fAbsHCID(-1),
-   fGapHCID(-1),
+//    fAbsHCID(-1),
+//    fGapHCID(-1),
    fDiffHCID(-1)
 {
 
@@ -61,12 +61,12 @@ BDEventAction::~BDEventAction()
 
 }
 //______________________________________________________________________________
-BDCalorHitsCollection* 
+BDHitsCollection* 
 BDEventAction::GetHitsCollection(G4int hcID,
                                   const G4Event* event) const
 {
   auto hitsCollection 
-    = static_cast<BDCalorHitsCollection*>(
+    = static_cast<BDHitsCollection*>(
         event->GetHCofThisEvent()->GetHC(hcID));
   
   if ( ! hitsCollection ) {
@@ -200,12 +200,12 @@ void BDEventAction::EndOfEventAction(const G4Event* event)
   // fill out custom output structure 
   BDoutput bd;
   FillBDData(event,diffHC,bd); 
- 
-  fIO->SetBDData("BD",bd);  
+  fIO->SetBDData("BD",bd); 
+  fIO->FillTree();  
  
 }  
 //______________________________________________________________________________
-void BDEventAction::FillBDData(const G4Event *evt,BDCalorHitsCollection *hc,BDoutput &out){
+void BDEventAction::FillBDData(const G4Event *evt,BDHitsCollection *hc,BDoutput &out){
    // fill the output class with hit data
 
    out.Clear();   // clear previous event data 
@@ -215,9 +215,9 @@ void BDEventAction::FillBDData(const G4Event *evt,BDCalorHitsCollection *hc,BDou
    std::map< int,std::set<int> > tracks_layers;           // key = BeamDiffuser layer ID, value = set of unique tracks with edep in layer 
    std::map< int,std::map<int,int> > nsteps_track_layer;  // number of steps by track/layer  
    std::map< int,std::map<int,int> > pid;                 // particle type
-   // std::map< int,std::map<int,int> > mid;                 // material/medium type (?)   
+   std::map< int,std::map<int,int> > mid;                 // material/medium type (?)   
    std::map< int,std::map<int,double> > x,y,z,t,p,edep;   
-   std::map< int,std::map<int,double> > xg,yg,zg;   
+   std::map< int,std::map<int,double> > xg,yg,zg,beta;   
    // std::map< int,std::map<int,double> > beta;   
 
    // loop over all "hits" (i.e., individual tracking steps)
@@ -244,10 +244,10 @@ void BDEventAction::FillBDData(const G4Event *evt,BDCalorHitsCollection *hc,BDou
          // energy and momentum 
          edep[bdID][trackID] = (*hc)[i]->GetEdep();
          p[bdID][trackID]    = (*hc)[i]->GetMom();  // momentum (magnitude) 
-	 // beta[bdID][trackID] = (*hc)[i]->GetBeta();
-         // PID 
+	 beta[bdID][trackID] = (*hc)[i]->GetBeta();
+         // Particle and material info  
 	 pid[bdID][trackID]  = (*hc)[i]->GetPID();
-	 // mid[bdID][trackID]  = (*hc)[i]->GetMID();
+	 mid[bdID][trackID]  = (*hc)[i]->GetMID();
       }else{
 	 // existing track in this layer, additional step; increment sums and averages
 	 nstep = nsteps_track_layer[bdID][trackID];
@@ -270,7 +270,7 @@ void BDEventAction::FillBDData(const G4Event *evt,BDCalorHitsCollection *hc,BDou
    bdID = 0; 
    trackID = 0;
 
-   G4TrajectoryContainer *trajectorylist = evt->GetTrajectoryContainer(); // for particle history information
+   // G4TrajectoryContainer *trajectorylist = evt->GetTrajectoryContainer(); // for particle history information
 
    // for particle history details.  don't utilize until we move this over to g4sbs
    // int MIDtemp=0,TIDtemp=0,PIDtemp=0,hitidx=0,nbouncetemp=0; 
@@ -294,9 +294,9 @@ void BDEventAction::FillBDData(const G4Event *evt,BDCalorHitsCollection *hc,BDou
 	 out.zg.push_back( zg[bdID][trackID]/_L_UNIT );
 	 out.trid.push_back( trackID );
 	 out.pid.push_back( pid[bdID][trackID] );
-	 // out.mid.push_back( mid[bdID][trackID] );
+	 out.mid.push_back( mid[bdID][trackID] );
 	 out.p.push_back( p[bdID][trackID]/_E_UNIT );
-	 // out.beta.push_back( beta[bdID][trackID]/_E_UNIT );
+	 out.beta.push_back( beta[bdID][trackID]/_E_UNIT );
 	 out.edep.push_back( edep[bdID][trackID]/_E_UNIT );
 	 out.nhits++;
 	 // if( trajectorylist ){ 

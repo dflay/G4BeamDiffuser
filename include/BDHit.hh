@@ -60,38 +60,54 @@ class BDHit : public G4VHit
     virtual void Draw() {}
     virtual void Print();
 
-    // methods to handle data
+    // setter methods 
     void Add(G4double de, G4double dl);
-    void SetTotalEnergy(G4double E); 
+    void SetTotalEnergy(G4double E);
+    void SetEdep(G4double edep); 
+    void SetBeta(G4double beta); 
+    void SetHitTime(G4double time); 
+ 
+    void SetTrackID(G4int trackID); 
     void SetLayer(G4int i); 
+    void SetPID(G4int pid); 
+    void SetMID(G4int mid); 
 
     void SetPos(G4ThreeVector v);
     void SetLabPos(G4ThreeVector v);
     void SetMomentum(G4ThreeVector m);
 
-    // get methods
-    G4double GetEdep() const;
+    // getter methods
+    G4double GetEdep()        const;
     G4double GetTrackLength() const;
     G4double GetTotalEnergy() const;
-    G4double GetMom() const;  
-    G4double GetHitTime() const { return 0; } // FIXME
-    G4int    GetLayer() const; 
-    G4int    GetPID()     const { return 0; } // FIXME
-    G4int    GetTrackID() const { return 0; } // FIXME
+    G4double GetMom()         const;  
+    G4double GetHitTime()     const;
+    G4double GetBeta()        const; 
 
-    G4ThreeVector GetPos() const; 
-    G4ThreeVector GetLabPos() const; 
+    G4int GetTrackID() const;  
+    G4int GetLayer()   const; 
+    G4int GetPID()     const;  
+    G4int GetMID()     const;  
+
+    G4ThreeVector GetPos()      const; 
+    G4ThreeVector GetLabPos()   const; 
     G4ThreeVector GetMomentum() const; 
       
   private:
-    G4double fEdep;        ///< Energy deposit in the sensitive volume
-    G4double fTrackLength; ///< Track length in the sensitive volume
-    G4double fEtot;        ///< Total energy (at pre-step) 
-    G4int fLayer;          ///< Layer number
+    G4double fEdep;        // Energy deposit in the sensitive volume
+    G4double fTrackLength; // Track length in the sensitive volume
+    G4double fEtot;        // Total energy (at pre-step)
+    G4double fBeta;        // Particle speed 
+    G4double fHitTime;     // Time of hit  
+
+    G4int fTrackID;        // Track number 
+    G4int fLayer;          // Layer number
+    G4int fPID;            // Particle type 
+    G4int fMID;            // Material type 
   
-    G4ThreeVector fPos;    ///< Local hit coordinate 
-    G4ThreeVector fLabPos; ///< Global hit coordinate 
-    G4ThreeVector fMom;    ///< Momentum 
+    G4ThreeVector fPos;    // Local hit coordinate 
+    G4ThreeVector fLabPos; // Global hit coordinate 
+    G4ThreeVector fMom;    // Momentum 
 
 };
 
@@ -117,21 +133,29 @@ inline void BDHit::operator delete(void *hit)
   BDHitAllocator->FreeSingle((BDHit*) hit);
 }
 //______________________________________________________________________________
+inline void BDHit::SetTrackID(G4int trackID){
+   fTrackID = trackID;
+}
+//______________________________________________________________________________
 inline void BDHit::Add(G4double de, G4double dl) {
   fEdep        += de; 
   fTrackLength += dl;
 }
 //______________________________________________________________________________
-inline G4double BDHit::GetEdep() const { 
-  return fEdep; 
-}
-//______________________________________________________________________________
-inline G4double BDHit::GetTrackLength() const { 
-  return fTrackLength; 
-}
+inline void BDHit::SetEdep(G4double edep){
+   fEdep = edep; 
+} 
 //______________________________________________________________________________
 inline void BDHit::SetTotalEnergy(G4double E){
    fEtot = E;
+}
+//______________________________________________________________________________
+inline void BDHit::SetBeta(G4double beta){
+   fBeta = beta;
+}
+//______________________________________________________________________________
+inline void BDHit::SetHitTime(G4double time){
+   fHitTime = time;
 }
 //______________________________________________________________________________
 inline void BDHit::SetPos(G4ThreeVector v){
@@ -150,8 +174,32 @@ inline void BDHit::SetLayer(G4int i){
    fLayer = i; 
 }
 //______________________________________________________________________________
+inline void BDHit::SetPID(G4int pid){ 
+   fPID = pid;
+}
+//______________________________________________________________________________
+inline void BDHit::SetMID(G4int mid){ 
+   fMID = mid;
+}
+//______________________________________________________________________________
+inline G4double BDHit::GetEdep() const { 
+  return fEdep; 
+}
+//______________________________________________________________________________
+inline G4double BDHit::GetTrackLength() const { 
+  return fTrackLength; 
+}
+//______________________________________________________________________________
 inline G4double BDHit::GetTotalEnergy() const{
    return fEtot;
+}
+//______________________________________________________________________________
+inline G4double BDHit::GetBeta() const{
+   return fBeta;
+}
+//______________________________________________________________________________
+inline G4double BDHit::GetHitTime() const{
+   return fHitTime;
 }
 //______________________________________________________________________________
 inline G4ThreeVector BDHit::GetPos() const{ 
@@ -166,7 +214,7 @@ inline G4ThreeVector BDHit::GetMomentum() const{
    return fMom;
 }
 //______________________________________________________________________________
-inline G4double BDHit::GetMom() const {
+inline G4double BDHit::GetMom() const{
    double x      = fMom.x();
    double y      = fMom.y();
    double z      = fMom.z();
@@ -176,6 +224,18 @@ inline G4double BDHit::GetMom() const {
 //______________________________________________________________________________
 inline G4int BDHit::GetLayer() const{
    return fLayer;
+}
+//______________________________________________________________________________
+inline G4int BDHit::GetPID() const{ 
+   return fPID;
+}
+//______________________________________________________________________________
+inline G4int BDHit::GetMID() const{ 
+   return fMID;
+}
+//______________________________________________________________________________
+inline G4int BDHit::GetTrackID() const{ 
+   return fTrackID;
 }
 
 #endif

@@ -47,7 +47,7 @@ BDRunAction::BDRunAction()
   // The choice of analysis technology is done via selectin of a namespace
   // in B4Analysis.hh
   auto analysisManager = G4AnalysisManager::Instance();
-  G4cout << "Using " << analysisManager->GetType() << G4endl;
+  G4cout << "[BDRunAction]: Using " << analysisManager->GetType() << G4endl;
 
   // Create directories 
   //analysisManager->SetHistoDirectoryName("histograms");
@@ -99,14 +99,13 @@ void BDRunAction::BeginOfRunAction(const G4Run* /*run*/)
    //G4RunManager::GetRunManager()->SetRandomNumberStore(true);
 
    // custom output
-   fIO->InitializeTree();
+   fIO->Initialize();
 
    // Get analysis manager
    auto analysisManager = G4AnalysisManager::Instance();
 
    // Open an output file
-   G4String fileName = "B4";
-   analysisManager->OpenFile(fileName);
+   analysisManager->OpenFile("B4");  // argument is the filename 
 }
 //______________________________________________________________________________
 void BDRunAction::EndOfRunAction(const G4Run* /*run*/)
@@ -123,20 +122,20 @@ void BDRunAction::EndOfRunAction(const G4Run* /*run*/)
       G4cout << "for the local thread " << G4endl << G4endl; 
     }
     
-    G4cout << " EAbs : mean = " 
-       << G4BestUnit(analysisManager->GetH1(0)->mean(), "Energy") 
-       << " rms = " 
-       << G4BestUnit(analysisManager->GetH1(0)->rms(),  "Energy") << G4endl;
+    // G4cout << " EAbs : mean = " 
+    //    << G4BestUnit(analysisManager->GetH1(0)->mean(), "Energy") 
+    //    << " rms = " 
+    //    << G4BestUnit(analysisManager->GetH1(0)->rms(),  "Energy") << G4endl;
     
     // G4cout << " EGap : mean = " 
     //    << G4BestUnit(analysisManager->GetH1(1)->mean(), "Energy") 
     //    << " rms = " 
     //    << G4BestUnit(analysisManager->GetH1(1)->rms(),  "Energy") << G4endl;
     
-    G4cout << " LAbs : mean = " 
-      << G4BestUnit(analysisManager->GetH1(1)->mean(), "Length") 
-      << " rms = " 
-      << G4BestUnit(analysisManager->GetH1(1)->rms(),  "Length") << G4endl;
+    // G4cout << " LAbs : mean = " 
+    //   << G4BestUnit(analysisManager->GetH1(1)->mean(), "Length") 
+    //   << " rms = " 
+    //   << G4BestUnit(analysisManager->GetH1(1)->rms(),  "Length") << G4endl;
 
     // G4cout << " LGap : mean = " 
     //   << G4BestUnit(analysisManager->GetH1(3)->mean(), "Length") 
@@ -149,6 +148,7 @@ void BDRunAction::EndOfRunAction(const G4Run* /*run*/)
   analysisManager->CloseFile();
 
   // custom output 
-  fIO->WriteTree(); 
+  fIO->Write(); 
+  fIO->CloseFile(); 
 
 }
