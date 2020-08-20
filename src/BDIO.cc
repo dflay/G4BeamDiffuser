@@ -7,11 +7,14 @@ BDIO::BDIO(const char *fn){
 }
 //______________________________________________________________________________
 BDIO::~BDIO(){
-   if(fTree) { delete fTree; }
-   fTree = nullptr;
-
-   if(fFile) { delete fFile; }
-   fFile = nullptr;
+   if(fTree){ 
+      delete fTree; 
+      fTree = nullptr;
+   }
+   if(fFile){ 
+      delete fFile; 
+      fFile = nullptr;
+   }
 }
 //______________________________________________________________________________
 void BDIO::Initialize(){
@@ -19,21 +22,17 @@ void BDIO::Initialize(){
    if(fFile){
       fFile->Close();
       delete fFile;
-      fFile = nullptr; 
+      // fFile = nullptr; 
    }
-
    // create a new file 
    fFile = new TFile(fFilename,"RECREATE");
-
    // delete existing tree if necessary
    if(fTree){ 
       delete fTree; 
-      fTree = nullptr; 
+      // fTree = nullptr; 
    }
-
    // create tree
    fTree = new TTree("T","BD Test");
-
    // define branches 
    BranchBD(); 
 }
@@ -49,9 +48,7 @@ void BDIO::FillTree(){
 void BDIO::Write(){
    // check pointers
    assert(fFile);
-   std::cout << "[BDIO]: FILE IS OK!" << std::endl;
    assert(fTree);
-   std::cout << "[BDIO]: TREE IS OK!" << std::endl;
    if( !fFile->IsOpen() ){
       G4cerr << "ERROR: " << __FILE__ << " line " << __LINE__ << ": TFile not open" << G4endl;
       exit(1);
@@ -81,19 +78,19 @@ void BDIO::BranchBD(G4String SDname){
    // define branches
    fTree->Branch( branch_name.Format("%s.hit.nhits", branch_prefix.Data() ), &(BDdata[SDname].nhits) );
    fTree->Branch( branch_name.Format("%s.hit.plane", branch_prefix.Data() ), &(BDdata[SDname].plane) );
-   fTree->Branch( branch_name.Format("%s.hit.x"    , branch_prefix.Data() ), &(BDdata[SDname].x)     );
-   fTree->Branch( branch_name.Format("%s.hit.y"    , branch_prefix.Data() ), &(BDdata[SDname].y)     );
-   fTree->Branch( branch_name.Format("%s.hit.z"    , branch_prefix.Data() ), &(BDdata[SDname].z)     );
-   fTree->Branch( branch_name.Format("%s.hit.t"    , branch_prefix.Data() ), &(BDdata[SDname].t)     );
-   fTree->Branch( branch_name.Format("%s.hit.xg"   , branch_prefix.Data() ), &(BDdata[SDname].xg)    );
-   fTree->Branch( branch_name.Format("%s.hit.yg"   , branch_prefix.Data() ), &(BDdata[SDname].yg)    );
-   fTree->Branch( branch_name.Format("%s.hit.zg"   , branch_prefix.Data() ), &(BDdata[SDname].zg)    );
-   fTree->Branch( branch_name.Format("%s.hit.trid" , branch_prefix.Data() ), &(BDdata[SDname].trid)  );
-   fTree->Branch( branch_name.Format("%s.hit.mid"  , branch_prefix.Data() ), &(BDdata[SDname].mid)   );
-   fTree->Branch( branch_name.Format("%s.hit.pid"  , branch_prefix.Data() ), &(BDdata[SDname].pid)   );
-   fTree->Branch( branch_name.Format("%s.hit.p"    , branch_prefix.Data() ), &(BDdata[SDname].p)     );
-   fTree->Branch( branch_name.Format("%s.hit.edep" , branch_prefix.Data() ), &(BDdata[SDname].edep)  );
-   fTree->Branch( branch_name.Format("%s.hit.beta" , branch_prefix.Data() ), &(BDdata[SDname].beta)  );
+   fTree->Branch( branch_name.Format("%s.hit.x"    , branch_prefix.Data() ), &(BDdata[SDname].x    ) );
+   fTree->Branch( branch_name.Format("%s.hit.y"    , branch_prefix.Data() ), &(BDdata[SDname].y    ) );
+   fTree->Branch( branch_name.Format("%s.hit.z"    , branch_prefix.Data() ), &(BDdata[SDname].z    ) );
+   fTree->Branch( branch_name.Format("%s.hit.t"    , branch_prefix.Data() ), &(BDdata[SDname].t    ) );
+   fTree->Branch( branch_name.Format("%s.hit.xg"   , branch_prefix.Data() ), &(BDdata[SDname].xg   ) );
+   fTree->Branch( branch_name.Format("%s.hit.yg"   , branch_prefix.Data() ), &(BDdata[SDname].yg   ) );
+   fTree->Branch( branch_name.Format("%s.hit.zg"   , branch_prefix.Data() ), &(BDdata[SDname].zg   ) );
+   fTree->Branch( branch_name.Format("%s.hit.trid" , branch_prefix.Data() ), &(BDdata[SDname].trid ) );
+   fTree->Branch( branch_name.Format("%s.hit.mid"  , branch_prefix.Data() ), &(BDdata[SDname].mid  ) );
+   fTree->Branch( branch_name.Format("%s.hit.pid"  , branch_prefix.Data() ), &(BDdata[SDname].pid  ) );
+   fTree->Branch( branch_name.Format("%s.hit.p"    , branch_prefix.Data() ), &(BDdata[SDname].p    ) );
+   fTree->Branch( branch_name.Format("%s.hit.edep" , branch_prefix.Data() ), &(BDdata[SDname].edep ) );
+   fTree->Branch( branch_name.Format("%s.hit.beta" , branch_prefix.Data() ), &(BDdata[SDname].beta ) );
 }
 //______________________________________________________________________________
 void BDIO::SetBDData(G4String SDname,BDoutput data){

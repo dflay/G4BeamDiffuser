@@ -44,7 +44,12 @@ BDHit::BDHit()
    fEdep(0.),
    fTrackLength(0.),
    fEtot(0.),
-   fLayer(-1)
+   fBeta(0.),
+   fHitTime(0.),
+   fTrackID(-1),
+   fLayer(-1),
+   fPID(-1),
+   fMID(-1)
 {
    fPos.setX(0);    fPos.setY(0);    fPos.setZ(0);
    fLabPos.setX(0); fLabPos.setY(0); fLabPos.setZ(0);
@@ -62,7 +67,11 @@ BDHit::BDHit(const BDHit& right)
   fEdep        = right.fEdep;
   fTrackLength = right.fTrackLength;
   fEtot        = right.fEtot;
+  fBeta        = right.fBeta;
+  fHitTime     = right.fHitTime;
   fLayer       = right.fLayer;
+  fPID         = right.fPID;
+  fMID         = right.fMID;
   fPos         = right.fPos;
   fLabPos      = right.fLabPos;
   fMom         = right.fMom;
@@ -73,7 +82,11 @@ const BDHit& BDHit::operator=(const BDHit& right)
   fEdep        = right.fEdep;
   fTrackLength = right.fTrackLength;
   fEtot        = right.fEtot;
+  fBeta        = right.fBeta;
+  fHitTime     = right.fHitTime;
   fLayer       = right.fLayer;
+  fPID         = right.fPID;
+  fMID         = right.fMID;
   fPos         = right.fPos;
   fLabPos      = right.fLabPos;
   fMom         = right.fMom;
