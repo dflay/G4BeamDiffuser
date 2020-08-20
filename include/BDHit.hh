@@ -24,11 +24,11 @@
 // ********************************************************************
 //
 //
-/// \file BDCalorHit.hh
-/// \brief Definition of the BDCalorHit class
+/// \file BDHit.hh
+/// \brief Definition of the BDHit class
 
-#ifndef BDCalorHit_h
-#define BDCalorHit_h 1
+#ifndef BDHit_h
+#define BDHit_h 1
 
 #include "G4VHit.hh"
 #include "G4THitsCollection.hh"
@@ -42,16 +42,16 @@
 /// of charged particles in a selected volume:
 /// - fEdep, fTrackLength
 
-class BDCalorHit : public G4VHit
+class BDHit : public G4VHit
 {
   public:
-    BDCalorHit();
-    BDCalorHit(const BDCalorHit&);
-    virtual ~BDCalorHit();
+    BDHit();
+    BDHit(const BDHit&);
+    virtual ~BDHit();
 
     // operators
-    const BDCalorHit& operator=(const BDCalorHit&);
-    G4bool operator==(const BDCalorHit&) const;
+    const BDHit& operator=(const BDHit&);
+    G4bool operator==(const BDHit&) const;
 
     inline void* operator new(size_t);
     inline void  operator delete(void*);
@@ -95,78 +95,78 @@ class BDCalorHit : public G4VHit
 
 };
 
-using BDCalorHitsCollection = G4THitsCollection<BDCalorHit>;
-extern G4ThreadLocal G4Allocator<BDCalorHit>* BDCalorHitAllocator;
+using BDHitsCollection = G4THitsCollection<BDHit>;
+extern G4ThreadLocal G4Allocator<BDHit>* BDHitAllocator;
 
 //______________________________________________________________________________
-inline void* BDCalorHit::operator new(size_t)
+inline void* BDHit::operator new(size_t)
 {
-  if (!BDCalorHitAllocator) {
-    BDCalorHitAllocator = new G4Allocator<BDCalorHit>;
+  if (!BDHitAllocator) {
+    BDHitAllocator = new G4Allocator<BDHit>;
   }
   void *hit;
-  hit = (void *) BDCalorHitAllocator->MallocSingle();
+  hit = (void *) BDHitAllocator->MallocSingle();
   return hit;
 }
 //______________________________________________________________________________
-inline void BDCalorHit::operator delete(void *hit)
+inline void BDHit::operator delete(void *hit)
 {
-  if (!BDCalorHitAllocator) {
-    BDCalorHitAllocator = new G4Allocator<BDCalorHit>;
+  if (!BDHitAllocator) {
+    BDHitAllocator = new G4Allocator<BDHit>;
   }
-  BDCalorHitAllocator->FreeSingle((BDCalorHit*) hit);
+  BDHitAllocator->FreeSingle((BDHit*) hit);
 }
 //______________________________________________________________________________
-inline void BDCalorHit::Add(G4double de, G4double dl) {
+inline void BDHit::Add(G4double de, G4double dl) {
   fEdep        += de; 
   fTrackLength += dl;
 }
 //______________________________________________________________________________
-inline G4double BDCalorHit::GetEdep() const { 
+inline G4double BDHit::GetEdep() const { 
   return fEdep; 
 }
 //______________________________________________________________________________
-inline G4double BDCalorHit::GetTrackLength() const { 
+inline G4double BDHit::GetTrackLength() const { 
   return fTrackLength; 
 }
 //______________________________________________________________________________
-inline void BDCalorHit::SetTotalEnergy(G4double E){
+inline void BDHit::SetTotalEnergy(G4double E){
    fEtot = E;
 }
 //______________________________________________________________________________
-inline void BDCalorHit::SetPos(G4ThreeVector v){
+inline void BDHit::SetPos(G4ThreeVector v){
    fPos = v;
 }
 //______________________________________________________________________________
-inline void BDCalorHit::SetLabPos(G4ThreeVector v){
+inline void BDHit::SetLabPos(G4ThreeVector v){
    fLabPos = v;
 }
 //______________________________________________________________________________
-inline void BDCalorHit::SetMomentum(G4ThreeVector m){
+inline void BDHit::SetMomentum(G4ThreeVector m){
    fMom = m;
 }
 //______________________________________________________________________________
-inline void BDCalorHit::SetLayer(G4int i){
+inline void BDHit::SetLayer(G4int i){
    fLayer = i; 
 }
 //______________________________________________________________________________
-inline G4double BDCalorHit::GetTotalEnergy() const{
+inline G4double BDHit::GetTotalEnergy() const{
    return fEtot;
 }
 //______________________________________________________________________________
-inline G4ThreeVector BDCalorHit::GetPos() const{ 
+inline G4ThreeVector BDHit::GetPos() const{ 
    return fPos;
 }
 //______________________________________________________________________________
-inline G4ThreeVector BDCalorHit::GetLabPos() const{ 
+inline G4ThreeVector BDHit::GetLabPos() const{ 
    return fLabPos;
 }
 //______________________________________________________________________________
-inline G4ThreeVector BDCalorHit::GetMomentum() const{ 
+inline G4ThreeVector BDHit::GetMomentum() const{ 
    return fMom;
 }
 //______________________________________________________________________________
-inline G4double BDCalorHit::GetMom() const {
+inline G4double BDHit::GetMom() const {
    double x      = fMom.x();
    double y      = fMom.y();
    double z      = fMom.z();
@@ -174,7 +174,7 @@ inline G4double BDCalorHit::GetMom() const {
    return sqrt(sum_sq); 
 }
 //______________________________________________________________________________
-inline G4int BDCalorHit::GetLayer() const{
+inline G4int BDHit::GetLayer() const{
    return fLayer;
 }
 
