@@ -274,12 +274,14 @@ void BDDetectorConstruction::BuildDiffuser(G4LogicalVolume *logicMother,char Hal
  
    auto defaultMaterial  = G4Material::GetMaterial("Galactic");
 
-   G4double diffCase_xy = 0.5*m; 
-   G4double diffCase_z  = 0.5*m; 
+   G4double inch        = 25.4*mm;
+   G4double diffCase_x  = 12.*inch;  
+   G4double diffCase_y  = 6.*inch;  // 0.5*m; 
+   G4double diffCase_z  = 15.*cm;   // 0.5*m; 
 
    auto diffCaseS 
       = new G4Box("diffCase",           // its name
-	    diffCase_xy/2.,diffCase_xy/2.,diffCase_z/2.); // its size
+	    diffCase_x/2.,diffCase_y/2.,diffCase_z/2.); // its size
 
    auto diffCaseLV
       = new G4LogicalVolume(
@@ -287,23 +289,27 @@ void BDDetectorConstruction::BuildDiffuser(G4LogicalVolume *logicMother,char Hal
 	    defaultMaterial,  // its material
 	    "diffCase");      // its name
   
-   // where to place the diffuser  
-   G4double inch = 25.4*mm; 
+   // where to place the diffuser 
+   // note: the (x,y) center of the diffuser plates is centered on this logical volume 
    G4double xd = 0.;
-   G4double yd = 6.*inch; 
+   G4double yd = 0.; 
    G4double zd = 2.*m; 
+   G4ThreeVector P_case = G4ThreeVector(xd,yd,zd); 
 
-   new G4PVPlacement(
-	 0,                        // no rotation
-	 G4ThreeVector(xd,yd,zd),  // location in mother volume 
-	 diffCaseLV,               // its logical volume                         
-	 "diffCase",               // its name
-	 logicMother,                  // its mother  volume
-	 false,                    // no boolean operation
-	 0,                        // copy number
-	 fCheckOverlaps);          // checking overlaps 
-   
-   diffCaseLV->SetVisAttributes(G4VisAttributes::GetInvisible());
+   new G4PVPlacement(0,                        // no rotation
+	             P_case,                   // location in mother volume 
+	             diffCaseLV,               // its logical volume                         
+	             "diffCase",               // its name
+	             logicMother,              // its mother  volume
+	             false,                    // no boolean operation
+	             0,                        // copy number
+	             fCheckOverlaps);          // checking overlaps 
+  
+   G4VisAttributes *visCase = new G4VisAttributes();
+   visCase->SetForceWireframe(); 
+ 
+   // diffCaseLV->SetVisAttributes(G4VisAttributes::GetInvisible());
+   diffCaseLV->SetVisAttributes(visCase); 
 
    // parameterised build of the diffuser
    // build first plate (same for Hall A or C)  

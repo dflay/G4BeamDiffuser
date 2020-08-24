@@ -75,17 +75,18 @@ class BDParameterisation: public G4VPVParameterisation {
       G4double GetRadiusMax()   const { return fRadius_max; }  
 
    private:
-      G4ThreeVector fR0;    // origin of device relative to mother volume 
-      double fGap;          // separation of the plates
-      double fWidth;        // width of a plate 
-      double fRadius_min;   // inner radius of a plate 
-      double fRadius_max;   // outer radius of a plate (derived from width and inner radius)  
-      double *fThickness;   // plate thicknesses
-      double *fStartPhi;    // start angles 
-      double *fDeltaPhi;    // step angles
-      int    *fColor;       // plate colors  
-      int fNLayers;         // number of layers 
-      char fHall;           // A or C 
+      G4ThreeVector fR0;      // origin of device relative to mother volume
+      double fTotalThickness; // default z-offset to center the assembly in its logical volume 
+      double fGap;            // separation of the plates
+      double fWidth;          // width of a plate 
+      double fRadius_min;     // inner radius of a plate 
+      double fRadius_max;     // outer radius of a plate (derived from width and inner radius)  
+      double *fThickness;     // plate thicknesses
+      double *fStartPhi;      // start angles 
+      double *fDeltaPhi;      // step angles
+      int    *fColor;         // plate colors  
+      int fNLayers;           // number of layers 
+      char fHall;             // A or C 
 
 };
 

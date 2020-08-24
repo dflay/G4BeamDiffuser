@@ -42,7 +42,7 @@ void BDParameterisation::InitParameters(){
    fGap        = 0.195*inch; 
    fWidth      = 2.*inch; 
    fRadius_min = 5.*inch; 
-   fRadius_max = fRadius_min + fWidth; 
+   fRadius_max = fRadius_min + fWidth;
 
    // make arrays large enough for all the layers we may need 
    const int NP_MAX = 16; 
@@ -103,6 +103,9 @@ void BDParameterisation::InitParameters(){
       fColor[8]      = diffuser::kGreen;  fColor[9]  = diffuser::kGreen;  fColor[10] = diffuser::kGreen; fColor[11] = diffuser::kGreen;
       fColor[12]     = diffuser::kYellow; fColor[13] = diffuser::kYellow; fColor[14] = diffuser::kRed;   fColor[15] = diffuser::kRed;
    }
+   // total thickness (used for placement of layers) 
+   fTotalThickness = fGap*( (double)fNLayers - 1. );
+   for(int i=0;i<fNLayers;i++) fTotalThickness += fThickness[i];  
 }
 //______________________________________________________________________________
 void BDParameterisation::ComputeTransformation(const G4int copyNo, 
@@ -111,15 +114,17 @@ void BDParameterisation::ComputeTransformation(const G4int copyNo,
    // sum over previous layers 
    G4double Ls=0;
    for(int i=0;i<copyNo;i++) Ls += fThickness[i]; 
-   // put it all together 
-   G4double x  = fR0.x(); 
-   G4double y  = fR0.y(); 
-   G4double z0 = fR0.z();
-   G4double z  = z0 + Ls + (double)(copyNo-1)*fGap + 0.5*fThickness[copyNo]; 
+   // put it all together.  Define center based on the fact that the assembly lives in a vacuum box 
+   G4double xp = fR0.x(); 
+   G4double yp = fR0.y() + fRadius_min + 0.5*fWidth;  // recall: the *center* of the half-moon shape is centered on the mother volume 
+   G4double z  = fR0.z();
+   G4double zp = -fTotalThickness/2. + z + Ls + (double)(copyNo-1)*fGap + 0.5*fThickness[copyNo]; 
    // set the 3-vector
-   G4ThreeVector P = G4ThreeVector(x,y,z); 
+   G4ThreeVector P = G4ThreeVector(xp,yp,zp); 
    physVol->SetTranslation(P); // set position 
-   physVol->SetRotation(0);    // no rotation  
+   physVol->SetRotation(0);    // no rotation 
+   std::cout << "[BDParameterisation::ComputeTransformation]: copy = " << copyNo 
+             << " (x,y,z) = (" << xp/mm << "," << yp/mm << "," << zp/mm << ") mm" << std::endl; 
 }
 //______________________________________________________________________________
 void BDParameterisation::ComputeDimensions(G4Tubs &plate,
