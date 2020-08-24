@@ -27,20 +27,25 @@
 /// \file BDHit.hh
 /// \brief Definition of the BDHit class
 
-#ifndef BDHit_h
-#define BDHit_h 1
+// BeamDiffuser (BD) hit class 
+// - It defines data members to store the the energy deposit and track lengths
+//   of charged particles in a selected layer
+
+#ifndef BDHIT_HH
+#define BDHIT_HH
 
 #include "G4VHit.hh"
 #include "G4THitsCollection.hh"
 #include "G4Allocator.hh"
 #include "G4ThreeVector.hh"
 #include "G4Threading.hh"
+#include "G4UnitsTable.hh"
+#include "G4VVisManager.hh"
+#include "G4Circle.hh"
+#include "G4Colour.hh"
+#include "G4VisAttributes.hh"
 
-/// Calorimeter hit class
-///
-/// It defines data members to store the the energy deposit and track lengths
-/// of charged particles in a selected volume:
-/// - fEdep, fTrackLength
+#include <iomanip>
 
 class BDHit : public G4VHit
 {

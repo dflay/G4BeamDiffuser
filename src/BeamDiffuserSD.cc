@@ -28,11 +28,6 @@
 /// \brief Implementation of the BeamDiffuserSD class
 
 #include "BeamDiffuserSD.hh"
-#include "G4HCofThisEvent.hh"
-#include "G4Step.hh"
-#include "G4ThreeVector.hh"
-#include "G4SDManager.hh"
-#include "G4ios.hh"
 
 //______________________________________________________________________________
 BeamDiffuserSD::BeamDiffuserSD(

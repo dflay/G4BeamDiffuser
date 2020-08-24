@@ -27,10 +27,18 @@
 /// \file BeamDiffuserSD.hh
 /// \brief Definition of the BeamDiffuserSD class
 
-#ifndef BeamDiffuserSD_h
-#define BeamDiffuserSD_h 1
+// BeamDiffuser Sensitive Detector class 
+// - Defines what happens event-by-event for the beam diffuser using the BDHit class  
+
+#ifndef BEAMDIFFUSERSD_HH
+#define BEAMDIFFUSERSD_HH
 
 #include "G4VSensitiveDetector.hh"
+#include "G4HCofThisEvent.hh"
+#include "G4Step.hh"
+#include "G4ThreeVector.hh"
+#include "G4SDManager.hh"
+#include "G4ios.hh"
 
 #include "BDHit.hh"
 
