@@ -123,8 +123,8 @@ void BDParameterisation::ComputeTransformation(const G4int copyNo,
    G4ThreeVector P = G4ThreeVector(xp,yp,zp); 
    physVol->SetTranslation(P); // set position 
    physVol->SetRotation(0);    // no rotation 
-   std::cout << "[BDParameterisation::ComputeTransformation]: copy = " << copyNo 
-             << " (x,y,z) = (" << xp/mm << "," << yp/mm << "," << zp/mm << ") mm" << std::endl; 
+   // std::cout << "[BDParameterisation::ComputeTransformation]: copy = " << copyNo 
+   //           << " (x,y,z) = (" << xp/mm << "," << yp/mm << "," << zp/mm << ") mm" << std::endl; 
 }
 //______________________________________________________________________________
 void BDParameterisation::ComputeDimensions(G4Tubs &plate,

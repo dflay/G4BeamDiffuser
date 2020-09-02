@@ -201,7 +201,7 @@ void BDEventAction::EndOfEventAction(const G4Event* event)
   BDoutput bd;
   FillBDData(event,diffHC,bd); 
   fIO->SetBDData("BD",bd); 
-  fIO->FillTree();  
+  // fIO->FillTree();  
  
 }  
 //______________________________________________________________________________
@@ -218,7 +218,6 @@ void BDEventAction::FillBDData(const G4Event *evt,BDHitsCollection *hc,BDoutput 
    std::map< int,std::map<int,int> > mid;                 // material/medium type (?)   
    std::map< int,std::map<int,double> > x,y,z,t,p,edep;   
    std::map< int,std::map<int,double> > xg,yg,zg,beta;   
-   // std::map< int,std::map<int,double> > beta;   
 
    // loop over all "hits" (i.e., individual tracking steps)
    int NHits = (int)hc->entries();  

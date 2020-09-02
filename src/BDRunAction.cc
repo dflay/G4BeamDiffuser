@@ -99,7 +99,7 @@ void BDRunAction::BeginOfRunAction(const G4Run* /*run*/)
    //G4RunManager::GetRunManager()->SetRandomNumberStore(true);
 
    // custom output
-   fIO->Initialize();
+   // fIO->Initialize();
 
    // Get analysis manager
    auto analysisManager = G4AnalysisManager::Instance();
@@ -148,7 +148,7 @@ void BDRunAction::EndOfRunAction(const G4Run* /*run*/)
   analysisManager->CloseFile();
 
   // custom output 
-  fIO->Write(); 
-  fIO->CloseFile(); 
+  // fIO->Write(); 
+  // fIO->CloseFile(); 
 
 }

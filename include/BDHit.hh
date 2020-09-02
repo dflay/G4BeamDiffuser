@@ -71,6 +71,7 @@ class BDHit : public G4VHit
     void SetEdep(G4double edep); 
     void SetBeta(G4double beta); 
     void SetHitTime(G4double time); 
+    void SetTrackLength(G4double len); 
  
     void SetTrackID(G4int trackID); 
     void SetLayer(G4int i); 
@@ -145,6 +146,10 @@ inline void BDHit::SetTrackID(G4int trackID){
 inline void BDHit::Add(G4double de, G4double dl) {
   fEdep        += de; 
   fTrackLength += dl;
+}
+//______________________________________________________________________________
+inline void BDHit::SetTrackLength(G4double len){
+   fTrackLength = len;
 }
 //______________________________________________________________________________
 inline void BDHit::SetEdep(G4double edep){

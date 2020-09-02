@@ -132,11 +132,13 @@ G4bool BeamDiffuserSD::ProcessHits(G4Step* step,G4TouchableHistory*)
   hit->SetPID(pid); 
   hit->SetMID(mid); 
   hit->SetTrackID(trackID); 
-  hit->SetLayer(layerNo);      // layer number  
-  hit->SetPos(pos);            // position in detector coordinates 
-  hit->SetLabPos(pos);         // position in lab coordinates 
-  hit->Add(edep, stepLength);  // accumulate edep and length
-  hit->SetTotalEnergy(E);      // set total energy
+  hit->SetLayer(layerNo);      
+  hit->SetPos(pos);            
+  hit->SetLabPos(pos);         
+  // hit->Add(edep, stepLength);  
+  hit->SetEdep(edep);               
+  hit->SetTrackLength(stepLength); 
+  hit->SetTotalEnergy(E);      
   hit->SetBeta(beta); 
   hit->SetHitTime(hitTime);
 

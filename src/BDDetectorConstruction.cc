@@ -35,6 +35,7 @@
 #include "G4NistManager.hh"
 #include "G4Box.hh"
 #include "G4Tubs.hh"
+#include "G4UnionSolid.hh"
 #include "G4LogicalVolume.hh"
 #include "G4PVPlacement.hh"
 #include "G4PVReplica.hh"
@@ -257,12 +258,100 @@ G4VPhysicalVolume* BDDetectorConstruction::DefineVolumes()
   // Visualization attributes
   worldLV->SetVisAttributes(G4VisAttributes::GetInvisible());
 
+  BuildCell(worldLV); 
+  BuildBeamPipe(worldLV); 
+
   // auto simpleBoxVisAtt= new G4VisAttributes(G4Colour(1.0,1.0,1.0));
   // simpleBoxVisAtt->SetVisibility(true);
   // calorLV->SetVisAttributes(simpleBoxVisAtt);
 
   // Always return the physical World
   return worldPV;
+}
+//______________________________________________________________________________
+void BDDetectorConstruction::BuildBeamPipe(G4LogicalVolume *logicMother){
+   // a mock beam pipe
+   G4double r1_min   = 5.*cm;  
+   G4double r1_max   = 10.*cm;  
+   G4double len1     = 50.*cm;
+   G4double r2_min   = 10.*cm;  
+   G4double r2_max   = 20.*cm;  
+   G4double len2     = 100.*cm;
+   G4double startPhi = 0*deg;  
+   G4double dPhi     = 360*deg;  
+ 
+   // define materials 
+   G4Material *Al  = G4Material::GetMaterial("G4_Al");
+
+   G4Tubs *tube1 = new G4Tubs("tube1",r1_min,r1_max,len1/2.,startPhi,dPhi);   
+   G4Tubs *tube2 = new G4Tubs("tube2",r2_min,r2_max,len2/2.,startPhi,dPhi);    
+
+   G4ThreeVector P = G4ThreeVector(0,0,len2/2.); 
+   G4UnionSolid *tubeAssembly = new G4UnionSolid("beamPipe",tube1,tube2,0,P);
+
+   // visualization
+   G4VisAttributes *vis = new G4VisAttributes(); 
+   vis->SetColour( G4Colour::Green() ); 
+ 
+   G4LogicalVolume *pipeLV = new G4LogicalVolume(tubeAssembly,Al,"pipeLV");
+   pipeLV->SetVisAttributes(vis);  
+
+   // placement 
+   new G4PVPlacement(0,
+	             G4ThreeVector(0,0,1*m),
+                     pipeLV,
+                     "physPipe",
+                     logicMother,
+                     false,
+                     0,
+                     fCheckOverlaps);
+
+
+}
+//______________________________________________________________________________
+void BDDetectorConstruction::BuildCell(G4LogicalVolume *logicMother){
+   // a simple tube of aluminum, Cu, or 3He 
+   G4double r_min    = 0.*cm;  
+   G4double r_max    = 2.*cm;  
+   G4double length   = 50.*cm;
+   G4double startPhi = 0*deg;  
+   G4double dPhi     = 360*deg;  
+  
+   // define materials 
+   G4Material *Al  = G4Material::GetMaterial("G4_Al");
+   G4Material *Cu  = G4Material::GetMaterial("G4_Cu");
+
+   G4int ncomponents=0;
+   G4double Z=0,N=0,abundance=0; 
+   G4Isotope *iso_3He = new G4Isotope( "He3", Z=2, N=3 );
+   G4Element *el3He   = new G4Element("Helium3", "3He", ncomponents=1 ); //Define isotopically pure Helium-3 
+   el3He->AddIsotope( iso_3He, abundance=100.0*perCent );
+
+   G4double rho       = 10.77*atmosphere*(3.016*g/Avogadro)/(300*kelvin*k_Boltzmann);
+   G4Material *pol3He = new G4Material("pol3He",rho,1);
+   pol3He->AddElement(el3He, 1);
+
+   // visualization
+   G4VisAttributes *vis = new G4VisAttributes(); 
+   vis->SetColour( G4Colour::White() ); 
+
+   // define solid 
+   G4Tubs *solidTube = new G4Tubs("tube",r_min,r_max,length/2.,startPhi,dPhi);
+
+   // define logical volume 
+   G4LogicalVolume *tubeLV = new G4LogicalVolume(solidTube,pol3He,"tubeLV");
+   tubeLV->SetVisAttributes(vis); 
+
+   // placement 
+   new G4PVPlacement(0,
+	             G4ThreeVector(0,0,0.5*m),
+                     tubeLV,
+                     "physTube",
+                     logicMother,
+                     false,
+                     0,
+                     fCheckOverlaps);
+
 }
 //______________________________________________________________________________
 void BDDetectorConstruction::BuildDiffuser(G4LogicalVolume *logicMother,char Hall){
@@ -293,7 +382,7 @@ void BDDetectorConstruction::BuildDiffuser(G4LogicalVolume *logicMother,char Hal
    // note: the (x,y) center of the diffuser plates is centered on this logical volume 
    G4double xd = 0.;
    G4double yd = 0.; 
-   G4double zd = 2.*m; 
+   G4double zd = 2.5*m; 
    G4ThreeVector P_case = G4ThreeVector(xd,yd,zd); 
 
    new G4PVPlacement(0,                        // no rotation
@@ -337,6 +426,10 @@ void BDDetectorConstruction::BuildDiffuser(G4LogicalVolume *logicMother,char Hal
    G4VPVParameterisation *plateParam = new BDParameterisation(Hall,P0); 
    // G4VPhysicalVolume *physDiffuser   = new G4PVParameterised("Diffuser",plateLV,logicMother,kZAxis,fNDiffLayers,plateParam); 
    new G4PVParameterised("Diffuser",plateLV,diffCaseLV,kZAxis,fNDiffLayers,plateParam); 
+
+   // auto diffuserSD = new BeamDiffuserSD("DiffuserSD","DiffuserHitsCollection"); 
+   // G4SDManager::GetSDMpointer()->AddNewDetector(diffuserSD);
+   // plateLV->SetSensitiveDetector(diffuserSD); 
 
 }
 //______________________________________________________________________________
