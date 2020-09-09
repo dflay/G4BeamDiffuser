@@ -32,16 +32,31 @@ void BDParameterisation::InitParameters(){
    G4double thk_094     = 0.09375*inch;
    G4double thk_100     = 0.10000*inch; 
    G4double thk_125     = 0.12500*inch; 
-   G4double startPhi_30 = 255.*deg; 
-   G4double startPhi_60 = 255.*deg;
-   G4double startPhi_90 = 225.*deg;
-   G4double deltaPhi_30 = 30.*deg; 
-   G4double deltaPhi_60 = 60.*deg; 
-   G4double deltaPhi_90 = 90.*deg; 
+   // G4double startPhi_30 = 255.*deg; 
+   // G4double startPhi_60 = 255.*deg;
+   // G4double startPhi_90 = 225.*deg;
+   // G4double deltaPhi_30 = 30.*deg; 
+   // G4double deltaPhi_60 = 60.*deg; 
+   // G4double deltaPhi_90 = 90.*deg; 
+
+   // fGap        = 0.195*inch; 
+   // fWidth      = 2.*inch; 
+   // fRadius_min = 5.*inch; 
+   // fRadius_max = fRadius_min + fWidth;
+
+   // dimensions from drawing number JL0015745 
+   G4double deltaPhi_38  = 38.*deg;
+   G4double deltaPhi_76  = 76.1*deg;
+   G4double deltaPhi_114 = 114.2*deg;
+   // compute the startPhi based upon orienting the parts with "wings" pointing up; centered on beam  
+   G4double startPhi     = 0.*deg;   // the diffuser is rocking back and forth; perhaps rotate the device? 
+   G4double startPhi_38  = startPhi + 270.*deg - deltaPhi_38/2.;  
+   G4double startPhi_76  = startPhi + 270.*deg - deltaPhi_76/2. + (deltaPhi_76-deltaPhi_38)/2.;  
+   G4double startPhi_114 = startPhi + 270.*deg - deltaPhi_114/2.; 
 
    fGap        = 0.195*inch; 
-   fWidth      = 2.*inch; 
-   fRadius_min = 5.*inch; 
+   fWidth      = 6.33*inch;             // computed from the drawing 
+   fRadius_min = 17.67*inch;            // chosen such that R_max = 24 inches  
    fRadius_max = fRadius_min + fWidth;
 
    // make arrays large enough for all the layers we may need 
@@ -66,15 +81,15 @@ void BDParameterisation::InitParameters(){
       fThickness[8]  = thk_125; fThickness[9]  = thk_100; fThickness[10] = thk_125; fThickness[11] = thk_125; 
       fThickness[12] = thk_100; fThickness[13] = thk_125; fThickness[14] = thk_125;
       // start angles 
-      fStartPhi[0]   = startPhi_30; fStartPhi[1]  = startPhi_30; fStartPhi[2]  = startPhi_30; fStartPhi[3]  = startPhi_60; 
-      fStartPhi[4]   = startPhi_60; fStartPhi[5]  = startPhi_60; fStartPhi[6]  = startPhi_90; fStartPhi[7]  = startPhi_90;
-      fStartPhi[8]   = startPhi_90; fStartPhi[9]  = startPhi_60; fStartPhi[10] = startPhi_60; fStartPhi[11] = startPhi_60;
-      fStartPhi[12]  = startPhi_30; fStartPhi[13] = startPhi_30; fStartPhi[14] = startPhi_30;   
+      fStartPhi[0]   = startPhi_38; fStartPhi[1]  = startPhi_38; fStartPhi[2]  = startPhi_38; fStartPhi[3]  = startPhi_76; 
+      fStartPhi[4]   = startPhi_76; fStartPhi[5]  = startPhi_76; fStartPhi[6]  = startPhi_114; fStartPhi[7]  = startPhi_114;
+      fStartPhi[8]   = startPhi_114; fStartPhi[9]  = startPhi_76; fStartPhi[10] = startPhi_76; fStartPhi[11] = startPhi_76;
+      fStartPhi[12]  = startPhi_38; fStartPhi[13] = startPhi_38; fStartPhi[14] = startPhi_38;   
       // step angles 
-      fDeltaPhi[0]   = deltaPhi_30; fDeltaPhi[1]  = deltaPhi_30; fDeltaPhi[2]  = deltaPhi_30; fDeltaPhi[3]  = deltaPhi_60; 
-      fDeltaPhi[4]   = deltaPhi_60; fDeltaPhi[5]  = deltaPhi_60; fDeltaPhi[6]  = deltaPhi_90; fDeltaPhi[7]  = deltaPhi_90;
-      fDeltaPhi[8]   = deltaPhi_90; fDeltaPhi[9]  = deltaPhi_60; fDeltaPhi[10] = deltaPhi_60; fDeltaPhi[11] = deltaPhi_60;
-      fDeltaPhi[12]  = deltaPhi_30; fDeltaPhi[13] = deltaPhi_30; fDeltaPhi[14] = deltaPhi_30;   
+      fDeltaPhi[0]   = deltaPhi_38; fDeltaPhi[1]  = deltaPhi_38; fDeltaPhi[2]  = deltaPhi_38; fDeltaPhi[3]  = deltaPhi_76; 
+      fDeltaPhi[4]   = deltaPhi_76; fDeltaPhi[5]  = deltaPhi_76; fDeltaPhi[6]  = deltaPhi_114; fDeltaPhi[7]  = deltaPhi_114;
+      fDeltaPhi[8]   = deltaPhi_114; fDeltaPhi[9]  = deltaPhi_76; fDeltaPhi[10] = deltaPhi_76; fDeltaPhi[11] = deltaPhi_76;
+      fDeltaPhi[12]  = deltaPhi_38; fDeltaPhi[13] = deltaPhi_38; fDeltaPhi[14] = deltaPhi_38;   
       // colors 
       fColor[0]      = diffuser::kBlue;    fColor[1]  = diffuser::kBlue;    fColor[2]  = diffuser::kMagenta; fColor[3]  = diffuser::kBlue;
       fColor[4]      = diffuser::kBlue;    fColor[5]  = diffuser::kMagenta; fColor[6]  = diffuser::kBlue;    fColor[7]  = diffuser::kMagenta;
@@ -88,15 +103,15 @@ void BDParameterisation::InitParameters(){
       fThickness[8]  = thk_094; fThickness[9]  = thk_094; fThickness[10] = thk_094; fThickness[11] = thk_094; 
       fThickness[12] = thk_062; fThickness[13] = thk_062; fThickness[14] = thk_031; fThickness[15] = thk_031; 
       // start angles 
-      fStartPhi[0]   = startPhi_30; fStartPhi[1]  = startPhi_30; fStartPhi[2]  = startPhi_30; fStartPhi[3]  = startPhi_30; 
-      fStartPhi[4]   = startPhi_60; fStartPhi[5]  = startPhi_60; fStartPhi[6]  = startPhi_90; fStartPhi[7]  = startPhi_90;
-      fStartPhi[8]   = startPhi_90; fStartPhi[9]  = startPhi_60; fStartPhi[10] = startPhi_60; fStartPhi[11] = startPhi_60;
-      fStartPhi[12]  = startPhi_30; fStartPhi[13] = startPhi_30; fStartPhi[14] = startPhi_30; fStartPhi[15] = startPhi_30;
+      fStartPhi[0]   = startPhi_38; fStartPhi[1]  = startPhi_38; fStartPhi[2]  = startPhi_38; fStartPhi[3]  = startPhi_38; 
+      fStartPhi[4]   = startPhi_76; fStartPhi[5]  = startPhi_76; fStartPhi[6]  = startPhi_114; fStartPhi[7]  = startPhi_114;
+      fStartPhi[8]   = startPhi_114; fStartPhi[9]  = startPhi_76; fStartPhi[10] = startPhi_76; fStartPhi[11] = startPhi_76;
+      fStartPhi[12]  = startPhi_38; fStartPhi[13] = startPhi_38; fStartPhi[14] = startPhi_38; fStartPhi[15] = startPhi_38;
       // step angles 
-      fDeltaPhi[0]   = deltaPhi_30; fDeltaPhi[1]  = deltaPhi_30; fDeltaPhi[2]  = deltaPhi_30; fDeltaPhi[3]  = deltaPhi_30; 
-      fDeltaPhi[4]   = deltaPhi_60; fDeltaPhi[5]  = deltaPhi_60; fDeltaPhi[6]  = deltaPhi_90; fDeltaPhi[7]  = deltaPhi_90;
-      fDeltaPhi[8]   = deltaPhi_90; fDeltaPhi[9]  = deltaPhi_60; fDeltaPhi[10] = deltaPhi_60; fDeltaPhi[11] = deltaPhi_60;
-      fDeltaPhi[12]  = deltaPhi_30; fDeltaPhi[13] = deltaPhi_30; fDeltaPhi[14] = deltaPhi_30; fDeltaPhi[15] = deltaPhi_30;
+      fDeltaPhi[0]   = deltaPhi_38; fDeltaPhi[1]  = deltaPhi_38; fDeltaPhi[2]  = deltaPhi_38; fDeltaPhi[3]  = deltaPhi_38; 
+      fDeltaPhi[4]   = deltaPhi_76; fDeltaPhi[5]  = deltaPhi_76; fDeltaPhi[6]  = deltaPhi_114; fDeltaPhi[7]  = deltaPhi_114;
+      fDeltaPhi[8]   = deltaPhi_114; fDeltaPhi[9]  = deltaPhi_76; fDeltaPhi[10] = deltaPhi_76; fDeltaPhi[11] = deltaPhi_76;
+      fDeltaPhi[12]  = deltaPhi_38; fDeltaPhi[13] = deltaPhi_38; fDeltaPhi[14] = deltaPhi_38; fDeltaPhi[15] = deltaPhi_38;
       // colors 
       fColor[0]      = diffuser::kBlue;   fColor[1]  = diffuser::kBlue;   fColor[2]  = diffuser::kBlue;  fColor[3]  = diffuser::kBlue;
       fColor[4]      = diffuser::kBlue;   fColor[5]  = diffuser::kBlue;   fColor[6]  = diffuser::kGreen; fColor[7]  = diffuser::kGreen;
