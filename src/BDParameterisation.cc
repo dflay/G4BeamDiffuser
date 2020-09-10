@@ -32,13 +32,15 @@ void BDParameterisation::InitParameters(){
    G4double thk_094     = 0.09375*inch;
    G4double thk_100     = 0.10000*inch; 
    G4double thk_125     = 0.12500*inch; 
+
+   // initial estimates 
    // G4double startPhi_30 = 255.*deg; 
    // G4double startPhi_60 = 255.*deg;
    // G4double startPhi_90 = 225.*deg;
    // G4double deltaPhi_30 = 30.*deg; 
    // G4double deltaPhi_60 = 60.*deg; 
    // G4double deltaPhi_90 = 90.*deg; 
-
+   // // plate separation and plate width 
    // fGap        = 0.195*inch; 
    // fWidth      = 2.*inch; 
    // fRadius_min = 5.*inch; 
@@ -53,7 +55,7 @@ void BDParameterisation::InitParameters(){
    G4double startPhi_38  = startPhi + 270.*deg - deltaPhi_38/2.;  
    G4double startPhi_76  = startPhi + 270.*deg - deltaPhi_76/2. + (deltaPhi_76-deltaPhi_38)/2.;  
    G4double startPhi_114 = startPhi + 270.*deg - deltaPhi_114/2.; 
-
+   // plate separation and plate width 
    fGap        = 0.195*inch; 
    fWidth      = 6.33*inch;             // computed from the drawing 
    fRadius_min = 17.67*inch;            // chosen such that R_max = 24 inches  
