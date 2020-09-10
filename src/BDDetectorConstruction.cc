@@ -35,6 +35,7 @@
 #include "G4NistManager.hh"
 #include "G4Box.hh"
 #include "G4Tubs.hh"
+#include "G4Cons.hh"
 #include "G4UnionSolid.hh"
 #include "G4SubtractionSolid.hh"
 #include "G4LogicalVolume.hh"
@@ -359,6 +360,7 @@ void BDDetectorConstruction::BuildBeamDump(G4LogicalVolume *logicMother){
    // build the Hall A beam dump 
 
    BuildBeamDump_ISOWallWeldment(logicMother);
+   BuildBeamDump_UpstreamPipe(logicMother);  
    BuildBeamDump_DownstreamPipe(logicMother);  
 
 }
@@ -392,7 +394,8 @@ void BDDetectorConstruction::BuildBeamDump_ISOWallWeldment(G4LogicalVolume *logi
  
    // visualization
    G4VisAttributes *vis = new G4VisAttributes(); 
-   vis->SetColour( G4Colour::Red() ); 
+   vis->SetColour( G4Colour::Red() );
+   vis->SetForceWireframe(); 
 
    // logical volume
    G4LogicalVolume *isoWallLV = new G4LogicalVolume(solidWall,material,"isoWallLV");
@@ -415,27 +418,56 @@ void BDDetectorConstruction::BuildBeamDump_UpstreamPipe(G4LogicalVolume *logicMo
    // Hall A Beam Dump: Pipe upstream of ISO Weldment
    // Drawing: JL0009934-C-VAC SPOOL REGION UPPER LEVEL
 
+   // main tube 
    G4double inch     = 25.4*mm; 
    G4double r_min    = 11.*inch;   // FIXME: This is arbitrary! 
    G4double r_max    = 12.12*inch;   
-   G4double len      = 328.04*inch; 
+   G4double len      = 180.83*inch; 
    G4double startPhi = 0.*deg; 
    G4double dPhi     = 360.*deg; 
    G4Tubs *solidTube = new G4Tubs("solidTube",r_min,r_max,len/2.,startPhi,dPhi);
+
+   // large conical tube
+   G4double delta      = 0.006*inch;  // FIXME: arbitrary!   
+   G4double r_min1_lg  = 0.5*23.54*inch; 
+   G4double r_max1_lg  = r_min1_lg + delta;   
+   G4double r_min2_lg  = 0.5*37.54*inch; 
+   G4double r_max2_lg  = r_min2_lg + delta;  
+   G4double len_lg     =  9.95*inch; 
+   G4Cons *solidConeLG = new G4Cons("solidConeLG",r_min1_lg,r_max1_lg,r_min2_lg,r_max2_lg,len_lg/2.,startPhi,dPhi); 
+ 
+   // small conical tube
+   G4double r_min1_sm  = 0.5*11.99*inch; 
+   G4double r_max1_sm  = r_min1_sm + delta;   
+   G4double r_min2_sm  = 0.5*23.49*inch; 
+   G4double r_max2_sm  = r_min2_sm + delta;  
+   G4double len_sm     =  6.13*inch; 
+   G4Cons *solidConeSM = new G4Cons("solidConeSM",r_min1_sm,r_max1_sm,r_min2_sm,r_max2_sm,len_sm/2.,startPhi,dPhi);  
+
+   // union solid
+   // - attach the main pipe and the large cone  
+   G4ThreeVector P_lg = G4ThreeVector(0,0,(len+len_lg)/2.);
+   G4UnionSolid *upstrPipe = new G4UnionSolid("pipe_lg",solidTube,solidConeLG,0,P_lg); 
+   // - attach the small cone to the previous assembly   
+   G4ThreeVector P_sm = G4ThreeVector(0,0,(len_sm-(len+len_lg))/2.);
+   upstrPipe = new G4UnionSolid("upstrPipe",upstrPipe,solidConeSM,0,P_sm); 
  
    // visualization
    G4VisAttributes *vis = new G4VisAttributes(); 
    vis->SetColour( G4Colour::Green() ); 
+   // vis->SetForceWireframe(); 
    
    // logical volume
    auto material  = G4Material::GetMaterial("G4_Al"); // might not be aluminum... 
-   G4LogicalVolume *tubeLV = new G4LogicalVolume(solidTube,material,"beamDump_usPipe_LV");
+   G4LogicalVolume *tubeLV = new G4LogicalVolume(upstrPipe,material,"beamDump_usPipe_LV");
    tubeLV->SetVisAttributes(vis); 
 
    // placement
-   G4double z_pos = 2.25*m - len/2.;  
+   G4double z_pos = 2.25*m - (len+len_lg+len_sm)/2.;  
    G4ThreeVector P = G4ThreeVector(0.*m,0,z_pos);
-   new G4PVPlacement(0,                        // no rotation
+   G4RotationMatrix *rm = new G4RotationMatrix();
+   rm->rotateY(180*deg); 
+   new G4PVPlacement(rm,                       // no rotation
 	             P,                        // location in mother volume 
 	             tubeLV,                   // its logical volume                         
 	             "beamDump_usPipe_PHY",    // its name
@@ -460,7 +492,8 @@ void BDDetectorConstruction::BuildBeamDump_DownstreamPipe(G4LogicalVolume *logic
  
    // visualization
    G4VisAttributes *vis = new G4VisAttributes(); 
-   vis->SetColour( G4Colour::Green() ); 
+   vis->SetColour( G4Colour::Yellow() ); 
+   // vis->SetForceWireframe(); 
    
    // logical volume
    auto material  = G4Material::GetMaterial("G4_Al"); // might not be aluminum... 
