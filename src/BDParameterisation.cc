@@ -51,7 +51,7 @@ void BDParameterisation::InitParameters(){
    G4double deltaPhi_76  = 76.1*deg;
    G4double deltaPhi_114 = 114.2*deg;
    // compute the startPhi based upon orienting the parts with "wings" pointing up; centered on beam  
-   G4double startPhi     = 0.*deg;   // the diffuser is rocking back and forth; perhaps rotate the device? 
+   G4double startPhi     = -90.*deg;   // the diffuser is rocking back and forth; perhaps rotate the device? 
    G4double startPhi_38  = startPhi + 270.*deg - deltaPhi_38/2.;  
    G4double startPhi_76  = startPhi + 270.*deg - deltaPhi_76/2. + (deltaPhi_76-deltaPhi_38)/2.;  
    G4double startPhi_114 = startPhi + 270.*deg - deltaPhi_114/2.; 
@@ -132,8 +132,8 @@ void BDParameterisation::ComputeTransformation(const G4int copyNo,
    G4double Ls=0;
    for(int i=0;i<copyNo;i++) Ls += fThickness[i]; 
    // put it all together.  Define center based on the fact that the assembly lives in a vacuum box 
-   G4double xp = fR0.x(); 
-   G4double yp = fR0.y() + fRadius_min + 0.5*fWidth;  // recall: the *center* of the half-moon shape is centered on the mother volume 
+   G4double xp = fR0.x() + fRadius_min + 0.5*fWidth; // recall: the *center* of the half-moon shape is centered on the mother volume 
+   G4double yp = fR0.y();    
    G4double z  = fR0.z();
    G4double zp = -fTotalThickness/2. + z + Ls + (double)(copyNo-1)*fGap + 0.5*fThickness[copyNo]; 
    // set the 3-vector

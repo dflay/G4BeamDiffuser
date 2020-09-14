@@ -117,8 +117,8 @@ G4VPhysicalVolume* BDDetectorConstruction::DefineVolumes()
   // auto layerThickness = absoThickness + gapThickness;
   // auto calorThickness = fNofLayers * layerThickness;
 
-  auto worldSizeXY    = 5*m; // 1.2*calorSizeXY;
-  auto worldSizeZ     = 5*m; // 1.2*calorThickness; 
+  auto worldSizeXY    = 50*m; // 1.2*calorSizeXY;
+  auto worldSizeZ     = 50*m; // 1.2*calorThickness; 
    
   // Get materials
   auto defaultMaterial  = G4Material::GetMaterial("Galactic");
@@ -417,18 +417,14 @@ void BDDetectorConstruction::BuildBeamDump_ISOWallWeldment(G4LogicalVolume *logi
 void BDDetectorConstruction::BuildBeamDump_UpstreamPipe(G4LogicalVolume *logicMother){
    // Hall A Beam Dump: Pipe upstream of ISO Weldment
    // Drawing: JL0009934-C-VAC SPOOL REGION UPPER LEVEL
+   
+   G4double inch         = 25.4*mm; 
+   G4double TOTAL_LENGTH = 196.91*inch;
+   G4double startPhi     = 0.*deg; 
+   G4double dPhi         = 360.*deg; 
 
-   // main tube 
-   G4double inch     = 25.4*mm; 
-   G4double r_min    = 11.*inch;   // FIXME: This is arbitrary! 
-   G4double r_max    = 12.12*inch;   
-   G4double len      = 180.83*inch; 
-   G4double startPhi = 0.*deg; 
-   G4double dPhi     = 360.*deg; 
-   G4Tubs *solidTube = new G4Tubs("solidTube",r_min,r_max,len/2.,startPhi,dPhi);
-
-   // large conical tube
-   G4double delta      = 0.006*inch;  // FIXME: arbitrary!   
+   // large conical tube [item 1]
+   G4double delta      = 0.005*inch;  // FIXME: arbitrary!   
    G4double r_min1_lg  = 0.5*23.54*inch; 
    G4double r_max1_lg  = r_min1_lg + delta;   
    G4double r_min2_lg  = 0.5*37.54*inch; 
@@ -436,21 +432,39 @@ void BDDetectorConstruction::BuildBeamDump_UpstreamPipe(G4LogicalVolume *logicMo
    G4double len_lg     =  9.95*inch; 
    G4Cons *solidConeLG = new G4Cons("solidConeLG",r_min1_lg,r_max1_lg,r_min2_lg,r_max2_lg,len_lg/2.,startPhi,dPhi); 
  
-   // small conical tube
+   // small conical tube [item 3] 
    G4double r_min1_sm  = 0.5*11.99*inch; 
    G4double r_max1_sm  = r_min1_sm + delta;   
    G4double r_min2_sm  = 0.5*23.49*inch; 
    G4double r_max2_sm  = r_min2_sm + delta;  
    G4double len_sm     =  6.13*inch; 
-   G4Cons *solidConeSM = new G4Cons("solidConeSM",r_min1_sm,r_max1_sm,r_min2_sm,r_max2_sm,len_sm/2.,startPhi,dPhi);  
+   G4Cons *solidConeSM = new G4Cons("solidConeSM",r_min1_sm,r_max1_sm,r_min2_sm,r_max2_sm,len_sm/2.,startPhi,dPhi); 
+
+   // vacuum window tube [item 4] 
+   G4double r_min_vwt = 0.5*12.12*inch; 
+   G4double r_max_vwt = 0.5*12.50*inch; 
+   G4double len_vwt   = 1.88*inch;
+   G4Tubs *solidVWTube = new G4Tubs("solidVWTube",r_min_vwt,r_max_vwt,len_vwt/2.,startPhi,dPhi);
+
+   // main tube [item 6, inferred]  
+   G4double r_min    = 12.005*inch;   // FIXME: This is arbitrary! 
+   G4double r_max    = 12.010*inch;   // FIXME: This is arbitrary! old value = 12.12*inch;   
+   G4double len      = TOTAL_LENGTH - len_lg - len_sm - len_vwt; // derived number.   
+   G4Tubs *solidTube = new G4Tubs("solidTube",r_min,r_max,len/2.,startPhi,dPhi);
 
    // union solid
-   // - attach the main pipe and the large cone  
-   G4ThreeVector P_lg = G4ThreeVector(0,0,(len+len_lg)/2.);
+   // - attach the main pipe and the large cone 
+   G4double zz = 0.5*len + 0.5*len_lg;  
+   G4ThreeVector P_lg = G4ThreeVector(0,0,zz);
    G4UnionSolid *upstrPipe = new G4UnionSolid("pipe_lg",solidTube,solidConeLG,0,P_lg); 
-   // - attach the small cone to the previous assembly   
-   G4ThreeVector P_sm = G4ThreeVector(0,0,(len_sm-(len+len_lg))/2.);
-   upstrPipe = new G4UnionSolid("upstrPipe",upstrPipe,solidConeSM,0,P_sm); 
+   // - attach the small cone    
+   zz = 0.5*len + 0.5*len_sm;  
+   G4ThreeVector P_sm = G4ThreeVector(0,0,-zz);
+   upstrPipe = new G4UnionSolid("pipe_lg_sm",upstrPipe,solidConeSM,0,P_sm); 
+   // - attach the vacuum window tube  
+   zz = 0.5*len + len_sm + 0.5*len_vwt;   
+   G4ThreeVector P_vwt = G4ThreeVector(0,0,-zz);  
+   upstrPipe = new G4UnionSolid("upstrPipe",upstrPipe,solidVWTube,0,P_vwt); 
  
    // visualization
    G4VisAttributes *vis = new G4VisAttributes(); 
@@ -460,10 +474,10 @@ void BDDetectorConstruction::BuildBeamDump_UpstreamPipe(G4LogicalVolume *logicMo
    // logical volume
    auto material  = G4Material::GetMaterial("G4_Al"); // might not be aluminum... 
    G4LogicalVolume *tubeLV = new G4LogicalVolume(upstrPipe,material,"beamDump_usPipe_LV");
-   tubeLV->SetVisAttributes(vis); 
+   tubeLV->SetVisAttributes(vis);
 
    // placement
-   G4double z_pos = 2.25*m - (len+len_lg+len_sm)/2.;  
+   G4double z_pos = 2.25*m - 0.5*TOTAL_LENGTH;  
    G4ThreeVector P = G4ThreeVector(0.*m,0,z_pos);
    G4RotationMatrix *rm = new G4RotationMatrix();
    rm->rotateY(180*deg); 
@@ -562,7 +576,7 @@ void BDDetectorConstruction::BuildDiffuser(G4LogicalVolume *logicMother,char Hal
    diffCaseLV->SetVisAttributes(visCase); 
 
    // parameterised build of the diffuser
-   // build first plate (same for Hall A or C)  
+   // build first plate (same for Hall A or C) 
    r_min    = 17.67*inch;  
    r_max    = 24.*inch; 
    dPhi     = 38.*deg; 
