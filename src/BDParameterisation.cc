@@ -135,7 +135,14 @@ void BDParameterisation::ComputeTransformation(const G4int copyNo,
    G4double xp = fR0.x() + fRadius_min + 0.5*fWidth; // recall: the *center* of the half-moon shape is centered on the mother volume 
    G4double yp = fR0.y();    
    G4double z  = fR0.z();
-   G4double zp = -fTotalThickness/2. + z + Ls + (double)(copyNo-1)*fGap + 0.5*fThickness[copyNo]; 
+   // G4double zp = z + Ls - fTotalThickness/2. + (double)(copyNo-1)*fGap + 0.5*fThickness[copyNo];
+   // G4double zp = z + Ls + (double)(copyNo-1)*fGap + 0.5*fThickness[copyNo];
+   G4double zp=0;
+   if(copyNo==0){
+      zp = z + 0.5*fThickness[copyNo]; // front face at zp = z  
+   }else{
+      zp = z + Ls + (double)(copyNo)*fGap + 0.5*fThickness[copyNo];
+   } 
    // set the 3-vector
    G4ThreeVector P = G4ThreeVector(xp,yp,zp); 
    physVol->SetTranslation(P); // set position 

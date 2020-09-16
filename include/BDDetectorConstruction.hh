@@ -67,13 +67,13 @@ class BDDetectorConstruction : public G4VUserDetectorConstruction
     void DefineMaterials();
     G4VPhysicalVolume* DefineVolumes();
 
-    void BuildDiffuser(G4LogicalVolume *logicMother,char Hall);
     void BuildCell(G4LogicalVolume *logicMother);  
     void BuildBeamPipe(G4LogicalVolume *logicMother); 
-    void BuildBeamDump(G4LogicalVolume *logicMother); 
-    void BuildBeamDump_ISOWallWeldment(G4LogicalVolume *logicMother); 
-    void BuildBeamDump_UpstreamPipe(G4LogicalVolume *logicMother); 
-    void BuildBeamDump_DownstreamPipe(G4LogicalVolume *logicMother); 
+    void BuildBeamDump(G4LogicalVolume *logicMother,G4double z0=0);  // default location  
+    void BuildBeamDump_Diffuser(G4LogicalVolume *logicMother,char Hall,G4double z0=0);
+    void BuildBeamDump_ISOWallWeldment(G4LogicalVolume *logicMother,G4double z0=0); 
+    void BuildBeamDump_UpstreamPipe(G4LogicalVolume *logicMother,G4double z0=0); 
+    void BuildBeamDump_DownstreamPipe(G4LogicalVolume *logicMother,G4double z0=0); 
   
     // data members
     static G4ThreadLocal G4GlobalMagFieldMessenger*  fMagFieldMessenger; // magnetic field messenger
@@ -81,6 +81,9 @@ class BDDetectorConstruction : public G4VUserDetectorConstruction
     G4bool  fCheckOverlaps; // option to activate checking of volumes overlaps
     G4int   fNofLayers;     // number of layers
     G4int   fNDiffLayers;   // number of diffuser layers
+
+    G4double fBDLength;     // length of Beam Diffuser (includes plate-to-plate spacing)    
+
 };
 
 #endif

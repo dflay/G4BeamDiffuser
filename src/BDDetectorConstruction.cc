@@ -60,7 +60,8 @@ BDDetectorConstruction::BDDetectorConstruction()
  : G4VUserDetectorConstruction(),
    fCheckOverlaps(true),
    fNofLayers(-1),
-   fNDiffLayers(0)
+   fNDiffLayers(0),
+   fBDLength(0)
 {
 
 }
@@ -242,9 +243,10 @@ G4VPhysicalVolume* BDDetectorConstruction::DefineVolumes()
   //                 0,                // copy number
   //                 fCheckOverlaps);  // checking overlaps 
   
-  BuildDiffuser(worldLV,'A'); 
+  // BuildDiffuser(worldLV,'A'); 
 
-  BuildBeamDump(worldLV);
+  G4double z_bd = 2.5*m; 
+  BuildBeamDump(worldLV,z_bd);
  
   // print parameters
   // G4cout
@@ -356,16 +358,97 @@ void BDDetectorConstruction::BuildCell(G4LogicalVolume *logicMother){
 
 }
 //______________________________________________________________________________
-void BDDetectorConstruction::BuildBeamDump(G4LogicalVolume *logicMother){
+void BDDetectorConstruction::BuildBeamDump(G4LogicalVolume *logicMother,G4double z0){
    // build the Hall A beam dump 
+   // z0 = location of beam diffuser 
 
-   BuildBeamDump_ISOWallWeldment(logicMother);
-   BuildBeamDump_UpstreamPipe(logicMother);  
-   BuildBeamDump_DownstreamPipe(logicMother);  
+   BuildBeamDump_Diffuser(logicMother,'A',z0);
+   BuildBeamDump_ISOWallWeldment(logicMother,z0);
+   BuildBeamDump_UpstreamPipe(logicMother,z0);  
+   BuildBeamDump_DownstreamPipe(logicMother,z0);  
 
 }
 //______________________________________________________________________________
-void BDDetectorConstruction::BuildBeamDump_ISOWallWeldment(G4LogicalVolume *logicMother){
+void BDDetectorConstruction::BuildBeamDump_Diffuser(G4LogicalVolume *logicMother,char Hall,G4double z0){
+ 
+   // A case for diffuser
+   // - made of vacuum 
+   // - allows placement of the volume in same mother as the calorimeter
+   //   (can't have two replicas or parameterised volumes in same mother...)  
+ 
+   auto defaultMaterial  = G4Material::GetMaterial("Galactic");
+
+   G4double inch = 25.4*mm;
+
+   // G4double diffCase_x = 12.*inch;  
+   // G4double diffCase_y = 6.*inch;  // 0.5*m; 
+   // G4double diffCase_z = 15.*cm;   // 0.5*m; 
+   // auto diffCaseS = new G4Box("diffCase",diffCase_x/2.,diffCase_y/2.,diffCase_z/2.); 
+ 
+   if(Hall=='A') fBDLength = 11.44*cm; 
+   if(Hall=='C') fBDLength = 11.0*cm; // FIXME 
+
+   G4double r_min    = 0.;
+   G4double r_max    = 25.*inch;
+   G4double len      = fBDLength; 
+   G4double startPhi = 0.*deg; 
+   G4double dPhi     = 360.*deg; 
+   auto diffCaseS    = new G4Tubs("diffCase",r_min,r_max,len/2.,startPhi,dPhi);
+   auto diffCaseLV   = new G4LogicalVolume(diffCaseS,defaultMaterial,"diffCase"); // its name
+   
+   // place the diffuser 
+   // note: the (x,y) center of the diffuser plates is centered on this logical volume 
+   // z0 = location of FRONT FACE of the beam diffuser
+   // zz = location of CENTER of the beam diffuser case (coincides with the BD)  
+   G4double zz = z0 + fBDLength/2.;
+   G4ThreeVector P_case = G4ThreeVector(0,0,zz); 
+
+   new G4PVPlacement(0,                        // no rotation
+	             P_case,                   // location in mother volume 
+	             diffCaseLV,               // its logical volume                         
+	             "diffCase",               // its name
+	             logicMother,              // its mother  volume
+	             false,                    // no boolean operation
+	             0,                        // copy number
+	             fCheckOverlaps);          // checking overlaps 
+  
+   G4VisAttributes *visCase = new G4VisAttributes();
+   visCase->SetForceWireframe(); 
+ 
+   // diffCaseLV->SetVisAttributes(G4VisAttributes::GetInvisible());
+   diffCaseLV->SetVisAttributes(visCase); 
+
+   // parameterised build of the diffuser
+   // build first plate (same for Hall A or C) 
+   r_min        = 17.67*inch;  
+   r_max        = 24.*inch; 
+   dPhi         = 38.*deg; 
+   startPhi     = 270.*deg - dPhi/2.; 
+   G4double thk = 0.125*inch;
+  
+   // choose the origin of the device (where the first plate starts, relative to the mother volume)
+   // origin of BD is the origin of the case  
+   zz = -fBDLength/2.;  
+   G4ThreeVector P0 = G4ThreeVector(0,0,zz);
+ 
+   auto plateMaterial = G4Material::GetMaterial("G4_Al");
+
+   if(Hall=='A') fNDiffLayers = 15; 
+   if(Hall=='C') fNDiffLayers = 16; 
+
+   G4VisAttributes *vis = new G4VisAttributes(); 
+   vis->SetColour( G4Colour::Blue() ); 
+ 
+   G4VSolid *solidPlate     = new G4Tubs("plate",r_min,r_max,thk/2.,startPhi,dPhi);
+   G4LogicalVolume *plateLV = new G4LogicalVolume(solidPlate,plateMaterial,"plateLV");
+   plateLV->SetVisAttributes(vis);
+
+   G4VPVParameterisation *plateParam = new BDParameterisation(Hall,P0); 
+   new G4PVParameterised("Diffuser",plateLV,diffCaseLV,kZAxis,fNDiffLayers,plateParam); 
+
+}
+//______________________________________________________________________________
+void BDDetectorConstruction::BuildBeamDump_ISOWallWeldment(G4LogicalVolume *logicMother,G4double z0){
    // Hall A Beam Dump: ISO Wall Weldment 
    // Drawing: JL0015694, JL0015725 
 
@@ -401,8 +484,9 @@ void BDDetectorConstruction::BuildBeamDump_ISOWallWeldment(G4LogicalVolume *logi
    G4LogicalVolume *isoWallLV = new G4LogicalVolume(solidWall,material,"isoWallLV");
    isoWallLV->SetVisAttributes(vis); 
 
-   // placement 
-   G4ThreeVector P_wall = G4ThreeVector(0.*m,-y_pos,2.25*m);
+   // placement
+   G4double z = z0 - fBDLength; 
+   G4ThreeVector P_wall = G4ThreeVector(0,-y_pos,z);
    new G4PVPlacement(0,                        // no rotation
 	             P_wall,                   // location in mother volume 
 	             isoWallLV,                // its logical volume                         
@@ -414,7 +498,7 @@ void BDDetectorConstruction::BuildBeamDump_ISOWallWeldment(G4LogicalVolume *logi
 
 }
 //______________________________________________________________________________
-void BDDetectorConstruction::BuildBeamDump_UpstreamPipe(G4LogicalVolume *logicMother){
+void BDDetectorConstruction::BuildBeamDump_UpstreamPipe(G4LogicalVolume *logicMother,G4double z0){
    // Hall A Beam Dump: Pipe upstream of ISO Weldment
    // Drawing: JL0009934-C-VAC SPOOL REGION UPPER LEVEL
  
@@ -620,8 +704,8 @@ void BDDetectorConstruction::BuildBeamDump_UpstreamPipe(G4LogicalVolume *logicMo
    tubeLV->SetVisAttributes(vis);
 
    // placement
-   G4double z_pos = 2.25*m - TOTAL_LENGTH;  
-   G4ThreeVector P = G4ThreeVector(0.,0.,z_pos);
+   G4double z = z0 - fBDLength/2. - 4.*inch - TOTAL_LENGTH; // last part is the ISO weldment plate 
+   G4ThreeVector P = G4ThreeVector(0.,0.,z);
    G4RotationMatrix *rm = new G4RotationMatrix();
    rm->rotateY(180*deg); 
    new G4PVPlacement(rm,                       // no rotation
@@ -635,7 +719,7 @@ void BDDetectorConstruction::BuildBeamDump_UpstreamPipe(G4LogicalVolume *logicMo
 
 }
 //______________________________________________________________________________
-void BDDetectorConstruction::BuildBeamDump_DownstreamPipe(G4LogicalVolume *logicMother){
+void BDDetectorConstruction::BuildBeamDump_DownstreamPipe(G4LogicalVolume *logicMother,G4double z0){
    // Hall A Beam Dump: Pipe downstream of ISO Weldment
    // Drawing: JL0011756_27020E0145 [modified]
 
@@ -649,6 +733,9 @@ void BDDetectorConstruction::BuildBeamDump_DownstreamPipe(G4LogicalVolume *logic
    G4double r_max_m  = 0.5*12.12*inch;   
    G4double len_m    = 327.66*inch; 
    G4Tubs *solidTubeM = new G4Tubs("solidTube",r_min_m,r_max_m,len_m/2.,startPhi,dPhi);
+
+   // vacuum insert 
+   G4Tubs *solidVacuumInsert = new G4Tubs("solidVacuumInsert",0.,r_min_m,TOTAL_LENGTH/2.,startPhi,dPhi); 
 
    // bookend flange [upstream]  
    G4double r_min_us = 0.5*12.11*inch; 
@@ -683,8 +770,9 @@ void BDDetectorConstruction::BuildBeamDump_DownstreamPipe(G4LogicalVolume *logic
    tubeLV->SetVisAttributes(vis); 
 
    // placement
-   G4double z_pos = 2.5*m + 15.*cm + TOTAL_LENGTH;  
-   G4ThreeVector P = G4ThreeVector(0.*m,0,z_pos);
+   G4double delta = 5.0*cm; // FIXME: arbitrary!  
+   G4double z_pos = z0 + fBDLength + TOTAL_LENGTH + delta;  
+   G4ThreeVector P = G4ThreeVector(0,0,z_pos);
    new G4PVPlacement(0,                        // no rotation
 	             P,                        // location in mother volume 
 	             tubeLV,                   // its logical volume                         
@@ -692,84 +780,33 @@ void BDDetectorConstruction::BuildBeamDump_DownstreamPipe(G4LogicalVolume *logic
 	             logicMother,              // its mother  volume
 	             false,                    // boolean operation? 
 	             0,                        // copy number
-	             fCheckOverlaps);          // checking overlaps    
+	             fCheckOverlaps);          // checking overlaps   
 
-}
-//______________________________________________________________________________
-void BDDetectorConstruction::BuildDiffuser(G4LogicalVolume *logicMother,char Hall){
+   // vacuum insert 
+   G4VisAttributes *visV = new G4VisAttributes(); 
+   visV->SetForceWireframe();
+
+   std::string name;
+   G4double z=0,a=0,density=0;
  
-   // A case for diffuser
-   // - made of vacuum 
-   // - allows placement of the volume in same mother as the calorimeter
-   //   (can't have two replicas or parameterised volumes in same mother...)  
- 
-   auto defaultMaterial  = G4Material::GetMaterial("Galactic");
+   // logical volume
+   G4Material *Vacuum     = new G4Material(name="Vacuum", z=1., a=1.0*g/mole, density=1e-9*g/cm3);
+   G4LogicalVolume *vacLV = new G4LogicalVolume(solidVacuumInsert,Vacuum,"vacuum_dsPipe_LV");
+   vacLV->SetVisAttributes(visV);  
 
-   G4double inch = 25.4*mm;
-
-   // G4double diffCase_x = 12.*inch;  
-   // G4double diffCase_y = 6.*inch;  // 0.5*m; 
-   // G4double diffCase_z = 15.*cm;   // 0.5*m; 
-   // auto diffCaseS = new G4Box("diffCase",diffCase_x/2.,diffCase_y/2.,diffCase_z/2.); 
-
-   G4double r_min    = 0.;
-   G4double r_max    = 25.*inch;
-   G4double len      = 15.*cm; 
-   G4double startPhi = 0.*deg; 
-   G4double dPhi     = 360.*deg; 
-   auto diffCaseS = new G4Tubs("diffCase",r_min,r_max,len/2.,startPhi,dPhi);
-
-   auto diffCaseLV = new G4LogicalVolume(diffCaseS,defaultMaterial,"diffCase"); // its name
-  
-   // where to place the diffuser 
-   // note: the (x,y) center of the diffuser plates is centered on this logical volume 
-   G4double xd = 0.;
-   G4double yd = 0.; 
-   G4double zd = 2.5*m; 
-   G4ThreeVector P_case = G4ThreeVector(xd,yd,zd); 
-
+   G4double Z = z0 + fBDLength + TOTAL_LENGTH/2. + delta; 
+   P = G4ThreeVector(0,0,Z);
    new G4PVPlacement(0,                        // no rotation
-	             P_case,                   // location in mother volume 
-	             diffCaseLV,               // its logical volume                         
-	             "diffCase",               // its name
+	             P,                        // location in mother volume 
+	             vacLV,                    // its logical volume                         
+	             "vacuum_dsPipe_PHY",      // its name
 	             logicMother,              // its mother  volume
-	             false,                    // no boolean operation
+	             false,                    // boolean operation? 
 	             0,                        // copy number
-	             fCheckOverlaps);          // checking overlaps 
-  
-   G4VisAttributes *visCase = new G4VisAttributes();
-   visCase->SetForceWireframe(); 
- 
-   // diffCaseLV->SetVisAttributes(G4VisAttributes::GetInvisible());
-   diffCaseLV->SetVisAttributes(visCase); 
-
-   // parameterised build of the diffuser
-   // build first plate (same for Hall A or C) 
-   r_min    = 17.67*inch;  
-   r_max    = 24.*inch; 
-   dPhi     = 38.*deg; 
-   startPhi = 270.*deg - dPhi/2.; 
-   G4double thk = 0.125*inch;
-  
-   // choose the origin of the device (where the first plate starts, relative to the mother volume)  
-   G4ThreeVector P0 = G4ThreeVector(0,0,0);
- 
-   auto plateMaterial = G4Material::GetMaterial("G4_Al");
-
-   if(Hall=='A') fNDiffLayers = 15; 
-   if(Hall=='C') fNDiffLayers = 16; 
-
-   G4VisAttributes *vis = new G4VisAttributes(); 
-   vis->SetColour( G4Colour::Blue() ); 
- 
-   G4VSolid *solidPlate     = new G4Tubs("plate",r_min,r_max,thk/2.,startPhi,dPhi);
-   G4LogicalVolume *plateLV = new G4LogicalVolume(solidPlate,plateMaterial,"plateLV");
-   plateLV->SetVisAttributes(vis);
-
-   G4VPVParameterisation *plateParam = new BDParameterisation(Hall,P0); 
-   new G4PVParameterised("Diffuser",plateLV,diffCaseLV,kZAxis,fNDiffLayers,plateParam); 
+	             fCheckOverlaps);          // checking overlaps   
 
 }
+
 //______________________________________________________________________________
 void BDDetectorConstruction::ConstructSDandField()
 {
