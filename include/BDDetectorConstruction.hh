@@ -68,7 +68,10 @@ class BDDetectorConstruction : public G4VUserDetectorConstruction
     G4VPhysicalVolume* DefineVolumes();
 
     void BuildCell(G4LogicalVolume *logicMother);  
-    void BuildBeamPipe(G4LogicalVolume *logicMother); 
+    void BuildBeamPipe(G4LogicalVolume *logicMother);
+
+    // upstream collimators 
+    void BuildCollimator_A(G4LogicalVolume *logicMother,G4double z0=0); 
    
     // beam dump
     void BuildBeamDump(G4LogicalVolume *logicMother,G4double z0=0);  // default location  

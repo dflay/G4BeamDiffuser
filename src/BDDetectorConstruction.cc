@@ -36,6 +36,8 @@
 #include "G4Box.hh"
 #include "G4Tubs.hh"
 #include "G4Cons.hh"
+#include "G4Trd.hh"
+#include "G4Trap.hh"
 #include "G4UnionSolid.hh"
 #include "G4SubtractionSolid.hh"
 #include "G4LogicalVolume.hh"
@@ -242,11 +244,13 @@ G4VPhysicalVolume* BDDetectorConstruction::DefineVolumes()
   //                 0,                // copy number
   //                 fCheckOverlaps);  // checking overlaps 
 
-  BuildCell(worldLV); 
-  BuildBeamPipe(worldLV); 
+  // BuildCell(worldLV); 
+  // BuildBeamPipe(worldLV); 
 
   G4double z_bd = 2.5*m; 
   BuildBeamDump(worldLV,z_bd);
+
+  BuildCollimator_A(worldLV); 
  
   // print parameters
   // G4cout
@@ -271,6 +275,67 @@ G4VPhysicalVolume* BDDetectorConstruction::DefineVolumes()
 
   // Always return the physical World
   return worldPV;
+}
+//______________________________________________________________________________
+void BDDetectorConstruction::BuildCollimator_A(G4LogicalVolume *logicMother,G4double z0){
+   // From drawings made by Sebastian Seeds (UConn) based on JT file
+   // - Collimator A1: CollimatorA_1_drawing.JPG
+   // - Collimator A2: CollimatorA_2_drawing.JPG
+   // - Offsets and rotations: CollimatorA_xzoffset.JPG
+   // Note: Collimators are on the LEFT side of the beam, next to the target  
+
+   double inch   = 2.54*cm;
+ 
+   // visualization
+   G4VisAttributes *vis = new G4VisAttributes(); 
+   vis->SetColour( G4Colour::Red() ); 
+
+   // define materials and logical volume 
+   G4Material *Aluminum = G4Material::GetMaterial("G4_Al");
+
+   // collimator A1: right-angle trapezoid  
+   double zl_a1     = 2.247*inch;  // length along z
+   double yl_a1     = 6.000*inch;  // length along y 
+   double xs_a1     = 1.614*inch;  // length along x (short side)
+   double xl_a1     = 3.391*inch;  // length along x (long side) 
+   G4Trap *colSolid_A1 = new G4Trap("colSolid_A1",zl_a1,yl_a1,xl_a1,xs_a1);
+
+   // collimator A2: regular trapezoid
+   double z_a2      = 6.000*inch;
+   double x1_a2     = 2.247*inch;  // upstream x size 
+   double x2_a2     = 3.189*inch;  // downstream x size 
+   double y_a2      = 2.500*inch;  // thickness  
+   G4Trd *colSolid_A2 = new G4Trd("colSolid_A2",x1_a2/2.,x2_a2/2.,y_a2/2.,y_a2/2.,z_a2/2.);  
+
+   // union of these objects.  use A2 as the reference point since it's easier
+   // - all positions and rotations are relative to A2 center  
+   G4ThreeVector P21     = G4ThreeVector(0,y_a2,0); 
+   G4RotationMatrix *r21 = new G4RotationMatrix();
+   r21->rotateX(90*deg); r21->rotateY(90*deg); r21->rotateZ(0);  
+   G4UnionSolid *col_A   = new G4UnionSolid("col_A",colSolid_A2,colSolid_A1,r21,P21); 
+
+   // define materials and logical volume 
+   G4LogicalVolume *col_A_LV = new G4LogicalVolume(col_A,Aluminum,"col_A_LV"); 
+   col_A_LV->SetVisAttributes(vis); 
+
+   // placement of the union object in the Hall coordinate system 
+   // position 
+   double X = 0; double Y = 0; double Z = z0; 
+   G4ThreeVector P = G4ThreeVector(X,Y,Z); 
+   // rotation 
+   double RX = 0.; double RY = -34.62*deg; double RZ = 0.;
+   G4RotationMatrix *rm = new G4RotationMatrix();
+   rm->rotateX(RX); rm->rotateY(RY); rm->rotateZ(RZ); 
+
+   new G4PVPlacement(rm,                         // rotation
+	             P,                          // position 
+                     col_A_LV,                   // logical volume   
+                     "col_A_PHY",                // physical name 
+                     logicMother,                // logical mother
+                     false,                      // boolean? 
+                     0,                          // copy no 
+                     fCheckOverlaps);            // check overlaps
+
 }
 //______________________________________________________________________________
 void BDDetectorConstruction::BuildBeamPipe(G4LogicalVolume *logicMother){
