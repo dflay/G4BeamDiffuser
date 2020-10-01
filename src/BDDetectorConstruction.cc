@@ -332,7 +332,7 @@ void BDDetectorConstruction::BuildCollimator_A(G4LogicalVolume *logicMother,G4do
                      col_A_LV,                   // logical volume   
                      "col_A_PHY",                // physical name 
                      logicMother,                // logical mother
-                     false,                      // boolean? 
+                     true,                       // boolean? 
                      0,                          // copy no 
                      fCheckOverlaps);            // check overlaps
 
