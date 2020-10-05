@@ -247,10 +247,14 @@ G4VPhysicalVolume* BDDetectorConstruction::DefineVolumes()
   // BuildCell(worldLV); 
   // BuildBeamPipe(worldLV); 
 
+  DrawAxis(worldLV,'x'); 
+  DrawAxis(worldLV,'y'); 
+  DrawAxis(worldLV,'z'); 
+
   G4double z_bd = 2.5*m; 
   BuildBeamDump(worldLV,z_bd);
 
-  BuildCollimator_A(worldLV); 
+  BuildCollimators(worldLV); 
  
   // print parameters
   // G4cout
@@ -275,6 +279,73 @@ G4VPhysicalVolume* BDDetectorConstruction::DefineVolumes()
 
   // Always return the physical World
   return worldPV;
+}
+//______________________________________________________________________________
+void BDDetectorConstruction::DrawAxis(G4LogicalVolume *logicMother,char axis){
+
+   // draw an axis centered on the origin 
+
+   int validAxis=0;
+   if(axis=='x') validAxis = 1; 
+   if(axis=='y') validAxis = 1; 
+   if(axis=='z') validAxis = 1;
+   if(validAxis!=1){
+      std::cout << "[BDDetectorConstruction::DrawAxis]: WARNING: Invalid axis = " << axis << std::endl;
+      return;
+   } 
+   
+   char axisName[200],axisName_LV[200],axisName_PHY[200];
+   sprintf(axisName    ,"%c-axis",axis    ); 
+   sprintf(axisName_LV ,"%s_LV"  ,axisName); 
+   sprintf(axisName_PHY,"%s_PHY" ,axisName); 
+
+   G4double r_min    = 0.*mm; 
+   G4double r_max    = 5.*mm;
+   G4double len      = 5*m; 
+   G4double startPhi = 0*deg;
+   G4double dPhi     = 360*deg;
+   G4Tubs *solidTube = new G4Tubs(axisName,r_min,r_max,len/2.,startPhi,dPhi);
+
+   G4VisAttributes *vis = new G4VisAttributes(); 
+   if(axis=='x') vis->SetColour( G4Colour::Red()   ); 
+   if(axis=='y') vis->SetColour( G4Colour::Green() ); 
+   if(axis=='z') vis->SetColour( G4Colour::Blue()  );
+
+   // define materials and logical volume 
+   G4Material *Vacuum = G4Material::GetMaterial("Galactic");
+
+   G4LogicalVolume *tube_LV = new G4LogicalVolume(solidTube,Vacuum,axisName_LV); 
+   tube_LV->SetVisAttributes(vis); 
+
+   // rotation and placement 
+   G4double RX=0,RY=0,RZ=0;
+   G4RotationMatrix *rm = new G4RotationMatrix(); 
+   if(axis=='x'){
+      RX = 0.*deg; RY = 90.*deg; RZ = 0.*deg; 
+   }else if(axis=='y'){
+      RX = 90.*deg; RY = 0.*deg; RZ = 0.*deg; 
+   }else if(axis=='z'){
+      RX = 0.*deg; RY = 0.*deg; RZ = 0.*deg; 
+   }
+   rm->rotateX(RX); rm->rotateY(RY); rm->rotateZ(RZ); 
+
+   new G4PVPlacement(rm,                        // rotation
+                     G4ThreeVector(0,0,0),      // position 
+                     tube_LV,                   // logical volume   
+                     axisName_PHY,              // physical name 
+                     logicMother,               // logical mother
+                     false,                     // boolean? 
+                     0,                         // copy no 
+                     fCheckOverlaps);           // check overlaps
+
+}
+//______________________________________________________________________________
+void BDDetectorConstruction::BuildCollimators(G4LogicalVolume *logicMother,G4double z0){
+   // Collimators near target (beam left) 
+   // Based on drawings from Sebastian Seeds (UConn), derived from Bert Metzger's JT file 
+   BuildCollimator_A(logicMother,z0); 
+   BuildCollimator_B(logicMother,z0); 
+   BuildCollimator_C(logicMother,z0); 
 }
 //______________________________________________________________________________
 void BDDetectorConstruction::BuildCollimator_A(G4LogicalVolume *logicMother,G4double z0){
@@ -318,9 +389,10 @@ void BDDetectorConstruction::BuildCollimator_A(G4LogicalVolume *logicMother,G4do
    G4LogicalVolume *col_A_LV = new G4LogicalVolume(col_A,Aluminum,"col_A_LV"); 
    col_A_LV->SetVisAttributes(vis); 
 
+   // FIXME: Get placement right!
    // placement of the union object in the Hall coordinate system 
    // position 
-   double X = 0; double Y = 0; double Z = z0; 
+   double X = 3.803*inch; double Y = -2.493*inch; double Z = z0 - 7.495*inch; 
    G4ThreeVector P = G4ThreeVector(X,Y,Z); 
    // rotation 
    double RX = 0.; double RY = -34.62*deg; double RZ = 0.;
@@ -333,6 +405,111 @@ void BDDetectorConstruction::BuildCollimator_A(G4LogicalVolume *logicMother,G4do
                      "col_A_PHY",                // physical name 
                      logicMother,                // logical mother
                      true,                       // boolean? 
+                     0,                          // copy no 
+                     fCheckOverlaps);            // check overlaps
+
+}
+//______________________________________________________________________________
+void BDDetectorConstruction::BuildCollimator_B(G4LogicalVolume *logicMother,G4double z0){
+   // From drawings made by Sebastian Seeds (UConn) based on JT file
+   // - Collimator B: CollimatorB_drawing.JPG
+   // - Offsets and rotations: CollimatorB_xzoffset.JPG
+   // Note: Collimators are on the LEFT side of the beam, next to the target  
+
+   double inch   = 2.54*cm;
+ 
+   // visualization
+   G4VisAttributes *vis = new G4VisAttributes(); 
+   vis->SetColour( G4Colour::Red() ); 
+
+   // define materials and logical volume 
+   G4Material *Aluminum = G4Material::GetMaterial("G4_Al");
+
+   // collimator B: right-angle trapezoid  
+   double zl_a1     = 0.815*inch;  // length along z
+   double yl_a1     = 3.397*inch;  // length along y 
+   double xs_a1     = 3.620*inch;  // length along x (short side)
+   double xl_a1     = 5.456*inch;  // length along x (long side) 
+   G4Trap *colSolid_B = new G4Trap("colSolid_B",zl_a1,yl_a1,xl_a1,xs_a1);
+
+   // define materials and logical volume 
+   G4LogicalVolume *col_B_LV = new G4LogicalVolume(colSolid_B,Aluminum,"col_B_LV"); 
+   col_B_LV->SetVisAttributes(vis); 
+
+   // FIXME: Get placement right!
+   // placement in the Hall coordinate system 
+   // position
+   std::vector<G4double> POS;
+   // POS.push_back( 2.720*inch); POS.push_back(-2.479*inch); POS.push_back(z0 + 14.2*inch); 
+   POS.push_back( 2.720*inch); POS.push_back(0*inch); POS.push_back(z0 + 14.2*inch); 
+   G4ThreeVector P = G4ThreeVector(POS[0],POS[1],POS[2]); 
+   // rotation 
+   std::vector<G4double> RA; 
+   RA.push_back(0.*deg); RA.push_back(47.24*deg); RA.push_back(-90.*deg);
+   G4RotationMatrix *rm = new G4RotationMatrix();
+   rm->rotateX(RA[0]); rm->rotateY(RA[1]); rm->rotateZ(RA[2]); 
+
+   // // adjust coordinates due to rotating the object into the right position  
+   // std::vector<G4double> PP; 
+   // GetRotatedCoordinates(RA,POS,PP);
+   // G4ThreeVector P = G4ThreeVector(-PP[0],-PP[1]/2.,PP[2]); 
+
+   new G4PVPlacement(rm,                         // rotation
+	             P,                          // position 
+                     col_B_LV,                   // logical volume   
+                     "col_B_PHY",                // physical name 
+                     logicMother,                // logical mother
+                     false,                      // boolean? 
+                     0,                          // copy no 
+                     fCheckOverlaps);            // check overlaps
+
+}
+//______________________________________________________________________________
+void BDDetectorConstruction::BuildCollimator_C(G4LogicalVolume *logicMother,G4double z0){
+   // From drawings made by Sebastian Seeds (UConn) based on JT file
+   // - Collimator C: CollimatorC_drawing.JPG
+   // - Offsets and rotations: CollimatorC_xzoffset.JPG
+   // Note: Collimators are on the LEFT side of the beam, next to the target  
+
+   double inch   = 2.54*cm;
+ 
+   // visualization
+   G4VisAttributes *vis = new G4VisAttributes(); 
+   vis->SetColour( G4Colour::Red() ); 
+
+   // define materials and logical volume 
+   G4Material *Aluminum = G4Material::GetMaterial("G4_Al");
+
+   // collimator C: right-angle trapezoid  
+   double zl_a1     = 1.498*inch;  // length along z
+   double yl_a1     = 2.756*inch;  // length along y 
+   double xs_a1     = 3.800*inch;  // length along x (short side)
+   double xl_a1     = 4.858*inch;  // length along x (long side) 
+   G4Trap *colSolid_C = new G4Trap("colSolid_C",zl_a1,yl_a1,xl_a1,xs_a1);
+
+   // define materials and logical volume 
+   G4LogicalVolume *col_C_LV = new G4LogicalVolume(colSolid_C,Aluminum,"col_C_LV"); 
+   col_C_LV->SetVisAttributes(vis); 
+
+   // FIXME: Get placement right!
+   // placement in the Hall coordinate system 
+   // position
+   std::vector<G4double> POS;
+   // POS.push_back( 4.070*inch); POS.push_back(-1.979*inch); POS.push_back(z0 + 20.870*inch); 
+   POS.push_back( 4.070*inch); POS.push_back(0*inch); POS.push_back(z0 + 20.870*inch); 
+   G4ThreeVector P = G4ThreeVector(POS[0],POS[1],POS[2]); 
+   // rotation 
+   std::vector<G4double> RA; 
+   RA.push_back(0.*deg); RA.push_back(50.41*deg); RA.push_back(-90.*deg);
+   G4RotationMatrix *rm = new G4RotationMatrix();
+   rm->rotateX(RA[0]); rm->rotateY(RA[1]); rm->rotateZ(RA[2]); 
+
+   new G4PVPlacement(rm,                         // rotation
+	             P,                          // position 
+                     col_C_LV,                   // logical volume   
+                     "col_C_PHY",                // physical name 
+                     logicMother,                // logical mother
+                     false,                      // boolean? 
                      0,                          // copy no 
                      fCheckOverlaps);            // check overlaps
 
@@ -1249,7 +1426,6 @@ void BDDetectorConstruction::MakeBeamExit_TargetToMidPipe(G4LogicalVolume *logic
                      true);                // checking overlaps  
 
 }
-
 //______________________________________________________________________________
 void BDDetectorConstruction::ConstructSDandField()
 {
@@ -1280,3 +1456,33 @@ void BDDetectorConstruction::ConstructSDandField()
   G4AutoDelete::Register(fMagFieldMessenger);
 }
 //______________________________________________________________________________
+void BDDetectorConstruction::GetRotatedCoordinates(std::vector<G4double> RA,
+                                                   std::vector<G4double> P,
+                                                   std::vector<G4double> &PP){
+   // compute rotated coordinates based on arbitrary rotations in all three dimensions
+   // inputs 
+   // - RA = rotation angles [x,y,z]
+   // - P  = initial coordinates [x,y,z] 
+   // - PP = rotated coordinates [x,y,z] 
+
+   // rotation angles
+   G4double COS_G = cos(RA[0]); G4double COS_B = cos(RA[1]); G4double COS_A = cos(RA[2]);
+   G4double SIN_G = sin(RA[0]); G4double SIN_B = sin(RA[1]); G4double SIN_A = sin(RA[2]);
+   // compute rotated coordinates 
+   G4double xp = COS_A*COS_B*P[0] + (COS_A*COS_B*SIN_G - SIN_A*COS_G)*P[1] + (COS_A*SIN_B*COS_G + SIN_A*SIN_G)*P[2];
+   G4double yp = SIN_A*COS_B*P[0] + (SIN_A*SIN_B*SIN_G + COS_A*COS_G)*P[1] + (SIN_A*SIN_B*COS_G - COS_A*SIN_G)*P[2];
+   G4double zp =      -SIN_B*P[0] +                       COS_B*SIN_G*P[1] +                       COS_B*COS_G*P[2];
+   // fill output vector 
+   PP.push_back(xp); 
+   PP.push_back(yp); 
+   PP.push_back(zp);
+ 
+   // print to screen
+   char msg[200]; 
+   const int N = P.size(); 
+   for(int i=0;i<N;i++){
+      sprintf(msg,"[BDDetectorConstruction::GetRotatedCoordinates]: P[%d] = %.3lf mm, P'[%d] = %.3lf mm",i,P[i]/mm,i,PP[i]/mm); 
+      std::cout << msg << std::endl;
+   }
+ 
+}
