@@ -68,7 +68,7 @@ class BDDetectorConstruction : public G4VUserDetectorConstruction
     G4VPhysicalVolume* DefineVolumes();
 
     // utilities 
-    void DrawAxis(G4LogicalVolume *logicMother,char axis='n');
+    void DrawAxis(G4LogicalVolume *logicMother,char axis='n',G4double z=0);
     void GetRotatedCoordinates(std::vector<G4double> RA,std::vector<G4double> P,std::vector<G4double> &PP); 
 
     // test geometries  
@@ -79,7 +79,9 @@ class BDDetectorConstruction : public G4VUserDetectorConstruction
     void BuildCollimators(G4LogicalVolume *logicMother,G4double z0=0);  
     void BuildCollimator_A(G4LogicalVolume *logicMother,G4double z0=0); 
     void BuildCollimator_B(G4LogicalVolume *logicMother,G4double z0=0); 
-    void BuildCollimator_C(G4LogicalVolume *logicMother,G4double z0=0); 
+    void BuildCollimator_C(G4LogicalVolume *logicMother,G4double z0=0);
+
+    void BuildGEnTarget_CollimatorTable(G4LogicalVolume *motherLog,G4double z0=0); 
    
     // beam dump
     void BuildBeamDump(G4LogicalVolume *logicMother,G4double z0=0);  // default location  
