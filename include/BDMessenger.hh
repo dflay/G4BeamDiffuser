@@ -41,6 +41,11 @@ class BDMessenger : public G4UImessenger {
       // beam energy stdev  
       G4UIcmdWithADoubleAndUnit *fBeamESIGcmd; 
 
+      // beam angular alignment 
+      G4UIcmdWithADoubleAndUnit *fBeamAngleXcmd;  
+      G4UIcmdWithADoubleAndUnit *fBeamAngleYcmd; 
+      G4UIcmdWithADoubleAndUnit *fBeamAngleZcmd;
+      G4UIcmdWithADoubleAndUnit *fBeamAngleSpreadcmd;
 
 }; 
 

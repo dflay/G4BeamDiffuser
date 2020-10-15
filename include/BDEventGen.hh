@@ -31,6 +31,17 @@ class BDEventGen {
       double GetBeamPointingX()        const { return fPointingX; } 
       double GetBeamPointingY()        const { return fPointingY; }
 
+      // beam angle
+      void SetZOrigin(double v)              { fZ0 = v; }
+      void SetBeamAngleX(double v)           { fBeamAngleX = v;    } 
+      void SetBeamAngleY(double v)           { fBeamAngleY = v;    } 
+      void SetBeamAngleZ(double v)           { fBeamAngleZ = v;    } 
+      void SetBeamAngleSpread(double v)      { fBeamAngleSpread = v; } 
+ 
+      double GetBeamAngleX()           const { return fBeamAngleX; } 
+      double GetBeamAngleY()           const { return fBeamAngleY; }
+      double GetBeamAngleZ()           const { return fBeamAngleZ; }
+
       int GenerateEvent();
 
       G4ThreeVector GetVertex() const { return fVertex;    } 
@@ -46,8 +57,19 @@ class BDEventGen {
       double fPointingX;     // beam pointing x 
       double fPointingY;     // beam pointing y
       double fX;             // beam x (random generated) 
-      double fY;             // beam y (random generated) 
-      bool fInit;  
+      double fY;             // beam y (random generated)
+      double fZ0;            // beam origin (z)  
+      bool fInit; 
+
+      // beam angle 
+      double fBeamAngleX; 
+      double fBeamAngleY; 
+      double fBeamAngleZ;
+      double fBeamAngleSpread;
+      // smear widths
+      double fbax_sig; 
+      double fbay_sig; 
+      double fbaz_sig; 
 
       G4ThreeVector fVertex; // generated vertex based on raster and pointing
       G4ThreeVector fBeamP;  // beam momentum  

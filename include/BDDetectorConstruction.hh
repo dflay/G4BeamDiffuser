@@ -72,8 +72,10 @@ class BDDetectorConstruction : public G4VUserDetectorConstruction
     void GetRotatedCoordinates(std::vector<G4double> RA,std::vector<G4double> P,std::vector<G4double> &PP); 
 
     // test geometries  
-    void BuildCell(G4LogicalVolume *logicMother);  
+    void BuildHe3(G4LogicalVolume *logicMother);  
+    void BuildGlassCell(G4LogicalVolume *logicMother);  
     void BuildBeamPipe(G4LogicalVolume *logicMother);
+    void BuildIonChamber(G4LogicalVolume *logicMother); 
 
     // upstream collimators
     void BuildCollimators(G4LogicalVolume *logicMother,G4double z0=0);  

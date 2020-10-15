@@ -32,39 +32,38 @@
 
 #include "G4VUserPrimaryGeneratorAction.hh"
 #include "globals.hh"
+#include "G4ThreeVector.hh"
 
 class G4ParticleGun;
 class G4Event;
 class BDEventGen; 
 
-/// The primary generator action class with particle gum.
-///
-/// It defines a single particle which hits the calorimeter 
-/// perpendicular to the input face. The type of the particle
-/// can be changed via the G4 build-in commands of G4ParticleGun class 
-/// (see the macros provided with this example).
+/// The primary generator action class with particle gun.
+/// - It defines a single particle which hits the calorimeter 
+///   perpendicular to the input face. The type of the particle
+///   can be changed via the G4 build-in commands of G4ParticleGun class 
+///   (see the macros provided with this example).
 
 class BDPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 {
-public:
-  BDPrimaryGeneratorAction();    
-  virtual ~BDPrimaryGeneratorAction();
+   public:
+      BDPrimaryGeneratorAction();    
+      virtual ~BDPrimaryGeneratorAction();
 
-  virtual void GeneratePrimaries(G4Event* event);
+      virtual void GeneratePrimaries(G4Event* event);
 
-  BDEventGen *GetEvGen() { return fEventGen; }  // get pointer to custom event generator  
-  
-  // set methods
-  void SetRandomFlag(G4bool value);
+      BDEventGen *GetEvGen() { return fEventGen; }  // get pointer to custom event generator  
 
-private:
-  G4ParticleGun*  fParticleGun; // G4 particle gun
-  BDEventGen*     fEventGen;    // custom event generator
-  G4double fParticleMass;       // beam particle mass  
-  
+      // set methods
+      void SetRandomFlag(G4bool value);
+
+   private:
+      G4ParticleGun*  fParticleGun; // G4 particle gun
+      BDEventGen*     fEventGen;    // custom event generator
+      G4double fParticleMass;       // beam particle mass 
+
+      void RotateVector(std::vector<G4double> R,G4ThreeVector P,G4ThreeVector &W); 
 
 };
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #endif

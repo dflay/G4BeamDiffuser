@@ -103,6 +103,7 @@ void BDPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   // - for some reason, sometimes the input macro values are NOT used.  
   //   to fix this, we have an Initialize() function that gives reasonable values 
   //   (that is, identical to the input macro).  this is not good practice, but it's fine for this test.  
+  fEventGen->SetZOrigin(worldZHalfLength); 
   int rc = 1;
   do {
      rc = fEventGen->GenerateEvent();
@@ -126,11 +127,45 @@ void BDPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   // std::cout << "[PrimaryGenerator]: Beam E = " << E/GeV << " GeV, T = " << T/GeV << " GeV" << std::endl; 
   fParticleGun->SetParticleEnergy(T);  
 
-  // std::cout << "-------------------------------------------------------" << std::endl; 
+  // initial momentum direction
+  G4ThreeVector P0 = G4ThreeVector(0,0,1); // initally along z
+
+  // get beam rotation angles
+  G4double rx = fEventGen->GetBeamAngleX(); 
+  G4double ry = fEventGen->GetBeamAngleY(); 
+  G4double rz = fEventGen->GetBeamAngleZ();
+  std::vector<G4double> R;
+  R.push_back(rx); R.push_back(ry); R.push_back(rz);
+
+  // rotate the momentum direction 
+  G4ThreeVector PR; 
+  RotateVector(R,P0,PR); 
   
+  std::cout << "MOMENTUM DIRECTION: " << std::endl;
+  std::cout << "x = " << P0.x() << " x' = " << PR.x() << std::endl;
+  std::cout << "y = " << P0.y() << " y' = " << PR.y() << std::endl;
+  std::cout << "z = " << P0.z() << " z' = " << PR.z() << std::endl;
+ 
+  fParticleGun->SetParticleMomentumDirection(PR);
+
+  // std::cout << "-------------------------------------------------------" << std::endl; 
   // Set gun position
   // fParticleGun->SetParticlePosition(G4ThreeVector(0., 0., -worldZHalfLength));
 
   fParticleGun->GeneratePrimaryVertex(anEvent);
 }
-
+//______________________________________________________________________________
+void BDPrimaryGeneratorAction::RotateVector(std::vector<G4double> R,G4ThreeVector P,G4ThreeVector &W){
+   // rotate a vector P by angles R, producing new vector W
+   // rotation angles
+   G4double COS_G = cos(R[0]); G4double COS_B = cos(R[1]); G4double COS_A = cos(R[2]);
+   G4double SIN_G = sin(R[0]); G4double SIN_B = sin(R[1]); G4double SIN_A = sin(R[2]);
+   // compute new coordinates 
+   G4double xp = COS_A*COS_B*P.x() + (COS_A*COS_B*SIN_G - SIN_A*COS_G)*P.y() + (COS_A*SIN_B*COS_G + SIN_A*SIN_G)*P.z();
+   G4double yp = SIN_A*COS_B*P.x() + (SIN_A*SIN_B*SIN_G + COS_A*COS_G)*P.y() + (SIN_A*SIN_B*COS_G - COS_A*SIN_G)*P.z();
+   G4double zp =      -SIN_B*P.x() +                       COS_B*SIN_G*P.y() +                       COS_B*COS_G*P.z();
+   // set new values 
+   W.setX(xp);  
+   W.setY(yp);  
+   W.setZ(zp);  
+}

@@ -18,6 +18,11 @@
 /b4/rasterx 4.0 mm
 /b4/rastery 4.0 mm
 
+# beam angle 
+/b4/beamAngleX 5.0 deg 
+/b4/beamAngleY 0.0 deg 
+/b4/beamAngleZ 0.0 deg 
+
 # beam direction 
 /b4/beampointx 0.0 mm
 /b4/beampointy 0.0 mm

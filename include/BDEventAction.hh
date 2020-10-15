@@ -64,7 +64,7 @@ class BDEventAction : public G4UserEventAction
       // methods
       BDHitsCollection* GetHitsCollection(G4int hcID,const G4Event* event) const; 
 
-      void PrintEventStatistics(G4double Edep,G4double TrackLength,G4int layer) const;
+      void PrintEventStatistics(G4double Edep,G4double TrackLength,G4int layer=0) const;
       void FillBDData(const G4Event *evt,BDHitsCollection *hc,BDoutput &out); 
 
       // data members                  
@@ -73,6 +73,8 @@ class BDEventAction : public G4UserEventAction
 //      G4int fAbsHCID;
 //      G4int fGapHCID;
       G4int fDiffHCID; 
+      G4int fICHCID;
+ 
 };
 
 #endif

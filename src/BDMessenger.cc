@@ -30,6 +30,23 @@ BDMessenger::BDMessenger(){
    fBeamPointYcmd = new G4UIcmdWithADoubleAndUnit("/b4/beampointy",this); 
    fBeamPointYcmd->SetGuidance("Set beam pointing along the vertical (y) direction"); 
    fBeamPointYcmd->SetParameterName("beampointy",false);  // must provide input 
+   // beam angular misalignment 
+   // - horizontal (x)  
+   fBeamAngleXcmd = new G4UIcmdWithADoubleAndUnit("/b4/beamAngleX",this); 
+   fBeamAngleXcmd->SetGuidance("Set beam misalignment angle relative to x axis"); 
+   fBeamAngleXcmd->SetParameterName("beamAngleX",false);  // must provide input 
+   // - vertical (y)
+   fBeamAngleYcmd = new G4UIcmdWithADoubleAndUnit("/b4/beamAngleY",this); 
+   fBeamAngleYcmd->SetGuidance("Set beam misalignment angle relative to y axis"); 
+   fBeamAngleYcmd->SetParameterName("beamAngleY",false);  // must provide input 
+   // - axial (z)
+   fBeamAngleZcmd = new G4UIcmdWithADoubleAndUnit("/b4/beamAngleZ",this); 
+   fBeamAngleZcmd->SetGuidance("Set beam misalignment angle relative to z axis"); 
+   fBeamAngleZcmd->SetParameterName("beamAngleZ",false);  // must provide input 
+   // - angular spread 
+   fBeamAngleSpreadcmd = new G4UIcmdWithADoubleAndUnit("/b4/beamAngleSpread",this); 
+   fBeamAngleSpreadcmd->SetGuidance("Set amount of spread to use about the central angle(s) in percent"); 
+   fBeamAngleSpreadcmd->SetParameterName("beamAngleSpread",false);  // must provide input 
    // beam energy 
    fBeamEcmd = new G4UIcmdWithADoubleAndUnit("/b4/beamE",this); 
    fBeamEcmd->SetGuidance("Set beam energy");
@@ -46,6 +63,10 @@ BDMessenger::~BDMessenger(){
    delete fRasterYcmd;
    delete fBeamPointXcmd;
    delete fBeamPointYcmd;
+   delete fBeamAngleXcmd; 
+   delete fBeamAngleYcmd; 
+   delete fBeamAngleZcmd; 
+   delete fBeamAngleSpreadcmd; 
    delete fBeamEcmd; 
    delete fBeamESIGcmd; 
 }
@@ -79,5 +100,22 @@ void BDMessenger::SetNewValue(G4UIcommand *cmd,G4String newValue){
    if(cmd==fBeamESIGcmd){
       bes = fBeamESIGcmd->GetNewDoubleValue(newValue); 
       fEventGen->SetBeamEnergySigma(bes); 
+   }
+   // beam angular alignment  
+   if(cmd==fBeamAngleXcmd){
+      G4double ax = fBeamAngleXcmd->GetNewDoubleValue(newValue); 
+      fEventGen->SetBeamAngleX(ax); 
+   } 
+   if(cmd==fBeamAngleYcmd){
+      G4double ay = fBeamAngleYcmd->GetNewDoubleValue(newValue);
+      fEventGen->SetBeamAngleY(ay); 
+   }
+   if(cmd==fBeamAngleZcmd){
+      G4double az = fBeamAngleZcmd->GetNewDoubleValue(newValue);
+      fEventGen->SetBeamAngleZ(az); 
+   }
+   if(cmd==fBeamAngleSpreadcmd){
+      G4double spr = fBeamAngleSpreadcmd->GetNewDoubleValue(newValue);
+      fEventGen->SetBeamAngleSpread(spr); 
    }
 }
